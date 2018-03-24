@@ -16,25 +16,82 @@ namespace BardSimV2
         List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
         List<BuffStateComponent> buffStateComponents = new List<BuffStateComponent>();
         List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
-        List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
         List<JobComponent> jobComponents = new List<JobComponent>();
+        List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
 
         public void Update(Stopwatch timer, Keyboard keyboard)
         {
             foreach ( KeyMappingComponent keyMapComp in keyMappingComponents)
             {
+                // User
                 Entity entity = keyMapComp.Parent;
 
-                foreach(KeyBind keyBind in keyMapComp.KeyBinds )
+                // User Components
+                AttributesComponent attComp = attributesComponents.Find(x => x.Parent == entity);
+                BuffStateComponent buffStateComp = buffStateComponents.Find(x => x.Parent == entity);
+                JobComponent jobComp = jobComponents.Find(x => x.Parent == entity);
+
+                // Target components
+                TargetComponent targComp = targetComponents.Find(x => x.Parent == entity);
+                HealthComponent healthComp = healthComponents.Find(x => x.Parent == targComp.Target);
+
+                // Skill list
+                List<Entity> skillList = jobComp.SkillList;
+
+                foreach (KeyBind keyBind in keyMapComp.KeyBinds )
                 {
-                    //TODO: Have a proper 'enum'
-                    if(keyBind.Command == "Heavy Shot")
+
+                    if (keyBind.Command == SkillName.HeavyShot)
                     {
+                        // Skill components
+                        SkillBaseComponent skillBaseComp = skillBaseComponents.Find(x => x.Name == SkillName.HeavyShot);
+
+                        // Skill
+                        Entity skill = skillBaseComp.Parent;
+
+                        // More skill components
+                        PotencyComponent potComp = potencyComponents.Find(x => x.Parent == skill);
+
                         if (keyBind.IsActive)
                         {
-                            CooldownComponent cdComp = cooldownComponents.Find(x => x.Parent == entity);
-                            
-                            if (cdComp.Start - timer.ElapsedMilliseconds < cdComp.Recast)
+                            // Determining skill recast time
+                            decimal recast;
+                            if(skillBaseComp.Type == SkillType.Weaponskill)
+                            {
+                                recast = CombatFormulas.SpeedRecast
+                                    (
+                                        attComp.AttributesDictionary[AttributeType.SkillSpeed] + buffStateComp.AttributesDictionary[AttributeType.SkillSpeed],
+                                        skillBaseComp.Cooldown.BaseRecast,
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Arrow],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Haste],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.FeyWind],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType1],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType2],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.RiddleOfFire],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.AstralUmbral]
+                                    );
+                            }else if(skillBaseComp.Type == SkillType.Spell)
+                            {
+                                recast = CombatFormulas.SpeedRecast
+                                    (
+                                        attComp.AttributesDictionary[AttributeType.SpellSpeed] + buffStateComp.AttributesDictionary[AttributeType.SpellSpeed],
+                                        skillBaseComp.Cooldown.BaseRecast,
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Arrow],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Haste],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.FeyWind],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType1],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType2],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.RiddleOfFire],
+                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.AstralUmbral]
+                                    );
+                            }
+                            else
+                            {
+                                recast = skillBaseComp.Cooldown.BaseRecast;
+                            }
+
+                            // Checking if skill is on cooldown
+                            if (skillBaseComp.Cooldown.Start - timer.ElapsedMilliseconds < recast)
                             {
                                 Random rng = new Random();
                                 decimal totalDamage = 0;
@@ -47,18 +104,6 @@ namespace BardSimV2
                                 decimal traitMod = 1;
                                 decimal critMod = 1;
                                 decimal dhitMod = 1;
-
-                                // Target components
-                                TargetComponent targComp = targetComponents.Find(x => x.Parent == entity);
-                                HealthComponent healthComp = healthComponents.Find(x => x.Parent == targComp.Target);
-
-                                // User Components
-                                AttributesComponent attComp = attributesComponents.Find(x => x.Parent == entity);
-                                BuffStateComponent buffStateComp = buffStateComponents.Find(x => x.Parent == entity);
-                                JobComponent jobComp = jobComponents.Find(x => x.Parent == entity);
-
-                                // Skill Components
-                                PotencyComponent potComp = potencyComponents.Find(x => x.Parent == entity);
 
                                 // Starts calculating potency modifier from base potency
                                 potMod = CombatFormulas.PotencyMod(potComp.Amount);
@@ -117,7 +162,7 @@ namespace BardSimV2
                                 healthComp.DamageTaken += totalDamage;
 
                                 // Puts skill on cooldown
-                                cdComp.Start = timer.ElapsedMilliseconds;
+                                skillBaseComp.Cooldown.Start = timer.ElapsedMilliseconds;
                             }
                         }
                     }

@@ -39,18 +39,11 @@ namespace BardSimV2
         {
             return Math.Floor((decimal)(130 * (ss - 364) / 2170 + 1000)) / 1000;
         }
-         internal static decimal SpeedRecast(int ss, decimal recast, int arrow = 0, int haste = 0, bool hasFeyWind = false, bool hasLeyLines = false, bool hasPresenceOfMind = false, bool hasShifu = false, bool hasBloodWeapon = false, bool hasHuton = false, int greasedLightning = 0, int armysPaeon = 0, bool hasRiddleOfFire = false, bool hasAstralUmbral = false)
+         internal static decimal SpeedRecast(int ss, decimal recast, decimal arrow = 0, decimal haste = 0, decimal feyWind = 0, decimal speedType1 = 0, decimal speedType2 = 0, decimal riddleOfFire = 100, decimal astralUmbral = 100)
         {
-            //decimal feyWind = Convert.ToInt32(hasFeyWind) * 3;
-            //decimal type1 = Convert.ToInt32(hasLeyLines) * 15 + Convert.ToInt32(hasPresenceOfMind) * 20 + Convert.ToInt32(hasShifu) * 10 + Convert.ToInt32(hasBloodWeapon) * 10;
-            //decimal type2 = Convert.ToInt32(hasHuton) * 15 + greasedLightning * 5 + armysPaeon * 4;
-            //decimal GCDm = Math.Floor((1000 - Math.Floor(130 * (sks - 364) / 2170)) * 2.5 / 1000);
-            //decimal A = Math.Floor(Math.Floor(Math.Floor((100 - arrow) * (100 - type1) / 100) * (100 - haste) / 100) - feyWind);
-            //decimal B = (type2 - 100) / 100;
-            decimal GCD = Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((decimal)((100 - arrow) * (100 - (Convert.ToInt32(hasLeyLines) * 15 + Convert.ToInt32(hasPresenceOfMind) * 20 + Convert.ToInt32(hasShifu) * 10 + Convert.ToInt32(hasBloodWeapon) * 10)) / 100)) * (100 - haste) / 100) - (Convert.ToInt32(hasFeyWind) * 3)) * ((Convert.ToInt32(hasHuton) * 15 + greasedLightning * 5 + armysPaeon * 4) - 100) / 100) * Math.Floor((1000 - Math.Floor((decimal)(130 * (ss - 364) / 2170))) * recast.SecondsToMilli() / 1000) / 100) * (Convert.ToInt32(hasRiddleOfFire) * 15 + 100) / 1000) * (100 - Convert.ToInt32(hasAstralUmbral) * 50) / 100);
+            decimal GCD = Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((decimal)((100 - arrow) * (100 - (speedType1)) / 100)) * (100 - haste) / 100) - feyWind) * ((speedType2) - 100) / 100) * Math.Floor((1000 - Math.Floor((decimal)(130 * (ss - 364) / 2170))) * recast.SecondsToMilli() / 1000) / 100) * riddleOfFire / 1000) * astralUmbral / 100);
 
             return GCD;
-
         }
          internal static decimal TenacityDamageMod(int ten)
         {

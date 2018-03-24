@@ -14,13 +14,14 @@ namespace BardSimV2
 
         public void Update(Stopwatch timer, Keyboard keyboard)
         {
-            if (keyboard.Tab.IsPressed)
+            foreach (KeyValuePair<Keys,bool> key in keyboard.keysDictionary)
+            if (key.Value)
             {
                 foreach (KeyMappingComponent keymapComp in components)
                 {
                     foreach(KeyBind keybind in keymapComp.KeyBinds)
                     {
-                        if( keybind.Key == keyboard.Tab)
+                        if( keybind.Key == key.Key)
                         {
                             keybind.IsActive = true;
                         }
@@ -33,7 +34,7 @@ namespace BardSimV2
                 {
                     foreach (KeyBind keybind in keymapComp.KeyBinds)
                     {
-                        if (keybind.Key == keyboard.Tab)
+                        if (keybind.Key == key.Key)
                         {
                             keybind.IsActive = false;
                         }
