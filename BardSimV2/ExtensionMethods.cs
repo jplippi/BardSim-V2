@@ -16,5 +16,10 @@
         {
             return (decimal)l / 1000;
         }
+
+        public static decimal MilliToSeconds(this ulong u)
+        {
+            return (decimal)u / 1000;
+        }
     }
 }

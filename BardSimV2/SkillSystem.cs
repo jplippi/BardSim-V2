@@ -32,7 +32,7 @@ namespace BardSimV2
             this.targetComponents = targetComponents;
         }
 
-        public void Update(Stopwatch timer, Keyboard keyboard)
+        public void Update(ulong timer, Keyboard keyboard)
         {
             foreach ( KeyMappingComponent keyMapComp in keyMappingComponents)
             {
@@ -103,7 +103,7 @@ namespace BardSimV2
                             }
 
                             // Checking if skill is on cooldown
-                            if (timer.ElapsedMilliseconds - skillBaseComp.Cooldown.Start  >= recast.SecondsToMilli())
+                            if (timer - skillBaseComp.Cooldown.Start  >= recast.SecondsToMilli())
                             {
                                 Random rng = new Random();
                                 decimal totalDamage = 0;
@@ -176,10 +176,10 @@ namespace BardSimV2
                                 healthComp.DamageTaken += totalDamage;
 
                                 // Puts skill on cooldown
-                                skillBaseComp.Cooldown.Start = timer.ElapsedMilliseconds;
+                                skillBaseComp.Cooldown.Start = timer;
 
                                 //DEBUG: Console log
-                                Console.WriteLine("[{0:00.00}] Used {1} for {2} damage.", timer.ElapsedMilliseconds.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage);
+                                Console.WriteLine("[{0:00.00}] Used {1} for {2} damage.", timer.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage);
                             }
                         }
                     }

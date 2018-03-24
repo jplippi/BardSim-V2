@@ -17,7 +17,7 @@ namespace BardSimV2
             this.keyMappingComponents = keyMappingComponents;
         }
 
-        public void Update(Stopwatch timer, Keyboard keyboard)
+        public void Update(ulong timer, Keyboard keyboard)
         {
             foreach (KeyValuePair<Keys,bool> key in keyboard.keysDictionary)
             if (key.Value)

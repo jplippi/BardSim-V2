@@ -172,7 +172,7 @@ namespace BardSimV2
             _systems.Add(new SkillSystem(attributesComponents, buffStateComponents, healthComponents, jobComponents, keyMappingComponents, potencyComponents, skillBaseComponents, targetComponents));
 
             // Starts the timer
-            Stopwatch timer = Stopwatch.StartNew();
+            ulong timer = 0;
 
             while (true)
             {
@@ -180,6 +180,7 @@ namespace BardSimV2
                 {
                     sys.Update(timer, keyboard);
                 };
+                timer += 10;
             }
         }
     }

@@ -9,7 +9,7 @@ namespace BardSimV2
 {
     class AIDebugSystem : ISystem
     {
-        public void Update(Stopwatch timer, Keyboard keyboard)
+        public void Update(ulong timer, Keyboard keyboard)
         {
             //if(timer.ElapsedMilliseconds % 3000 > 2900 && timer.ElapsedMilliseconds % 3000 < 100)
             //{
