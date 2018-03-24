@@ -9,14 +9,14 @@ namespace BardSimV2
     class KeyBind
     {
         private SkillName command;
-        private Key key;
+        private Keys key;
         private bool isActive;
 
         public SkillName Command { get => command; }
-        public Key Key { get => key; set => key = value; }
+        public Keys Key { get => key; set => key = value; }
         public bool IsActive { get => isActive; set => isActive = value; }
 
-        public KeyBind(SkillName command, Key key, bool isActive = false)
+        public KeyBind(SkillName command, Keys key, bool isActive = false)
         {
             this.command = command;
             this.key = key;

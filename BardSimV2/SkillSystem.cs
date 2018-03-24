@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExtensionMethods;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,14 +11,26 @@ namespace BardSimV2
     class SkillSystem : ISystem
     {
         // TODO: Populate with actual components
-        List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
-        List<TargetComponent> targetComponents = new List<TargetComponent>();
-        List<HealthComponent> healthComponents = new List<HealthComponent>();
-        List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
-        List<BuffStateComponent> buffStateComponents = new List<BuffStateComponent>();
-        List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
-        List<JobComponent> jobComponents = new List<JobComponent>();
-        List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
+        List<AttributesComponent> attributesComponents;
+        List<BuffStateComponent> buffStateComponents;
+        List<HealthComponent> healthComponents;
+        List<JobComponent> jobComponents;
+        List<KeyMappingComponent> keyMappingComponents;
+        List<PotencyComponent> potencyComponents;
+        List<SkillBaseComponent> skillBaseComponents;
+        List<TargetComponent> targetComponents;
+
+        public SkillSystem(List<AttributesComponent> attributesComponents, List<BuffStateComponent> buffStateComponents, List<HealthComponent> healthComponents, List<JobComponent> jobComponents, List<KeyMappingComponent> keyMappingComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
+        {
+            this.attributesComponents = attributesComponents;
+            this.buffStateComponents = buffStateComponents;
+            this.healthComponents = healthComponents;
+            this.jobComponents = jobComponents;
+            this.keyMappingComponents = keyMappingComponents;
+            this.potencyComponents = potencyComponents;
+            this.skillBaseComponents = skillBaseComponents;
+            this.targetComponents = targetComponents;
+        }
 
         public void Update(Stopwatch timer, Keyboard keyboard)
         {
@@ -40,12 +53,11 @@ namespace BardSimV2
 
                 foreach (KeyBind keyBind in keyMapComp.KeyBinds )
                 {
+                    // Skill components
+                    SkillBaseComponent skillBaseComp = skillBaseComponents.Find(x => x.Name == keyBind.Command);
 
-                    if (keyBind.Command == SkillName.HeavyShot)
+                    if(skillBaseComp != null)
                     {
-                        // Skill components
-                        SkillBaseComponent skillBaseComp = skillBaseComponents.Find(x => x.Name == SkillName.HeavyShot);
-
                         // Skill
                         Entity skill = skillBaseComp.Parent;
 
@@ -91,7 +103,7 @@ namespace BardSimV2
                             }
 
                             // Checking if skill is on cooldown
-                            if (skillBaseComp.Cooldown.Start - timer.ElapsedMilliseconds < recast)
+                            if (timer.ElapsedMilliseconds - skillBaseComp.Cooldown.Start  >= recast.SecondsToMilli())
                             {
                                 Random rng = new Random();
                                 decimal totalDamage = 0;
@@ -157,12 +169,17 @@ namespace BardSimV2
 
                                 totalDamage = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod, dhitMod, buffStateComp.SpecialBuffList);
 
+                                //TODO: Resolve effects
+
                                 // Inflicts damage on target's health component
                                 healthComp.Amount -= totalDamage;
                                 healthComp.DamageTaken += totalDamage;
 
                                 // Puts skill on cooldown
                                 skillBaseComp.Cooldown.Start = timer.ElapsedMilliseconds;
+
+                                //DEBUG: Console log
+                                Console.WriteLine("[{0:00.00}] Used {1} for {2} damage.", timer.ElapsedMilliseconds.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage);
                             }
                         }
                     }

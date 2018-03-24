@@ -9,11 +9,15 @@ namespace BardSimV2
 {
     class Entity
     {
-        private ImmutableArray<Component> components;
+        private List<Component> components;
         
-        public ImmutableArray<Component> Components { get => components; }
+        public List<Component> Components { get => components; }
 
-        public Entity(ImmutableArray<Component> components)
+        public Entity()
+        {
+        }
+
+        public void AddComponents(List<Component> components)
         {
             this.components = components;
         }

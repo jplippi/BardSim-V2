@@ -8,19 +8,19 @@ namespace BardSimV2
 {
     class BuffStateComponent : Component
     {
-        private Dictionary<AttributeType, int> attributesDictionary;
+        private Dictionary<AttributeType, decimal> attributesDictionary;
         private Dictionary<SpecialBuffType, decimal> specialBuffDictionary;
         private List<AttributeBuff> attributeBuffList = new List<AttributeBuff>();
         private List<SpecialBuff> specialBuffList = new List<SpecialBuff>();
 
-        public Dictionary<AttributeType, int> AttributesDictionary { get => attributesDictionary; }
+        public Dictionary<AttributeType, decimal> AttributesDictionary { get => attributesDictionary; }
         public Dictionary<SpecialBuffType, decimal> SpecialBuffDictionary { get => specialBuffDictionary; }
         public List<AttributeBuff> AttributeBuffList { get => attributeBuffList; }
         public List<SpecialBuff> SpecialBuffList { get => specialBuffList; }
 
         public BuffStateComponent(Entity parent) : base(parent)
         {
-            attributesDictionary = new Dictionary<AttributeType, int>
+            attributesDictionary = new Dictionary<AttributeType, decimal>
             {
                 { AttributeType.Strenght, 0 },
                 { AttributeType.Dexterity, 0 },
@@ -48,8 +48,8 @@ namespace BardSimV2
                 { SpecialBuffType.Haste, 0 },
                 { SpecialBuffType.SpeedType1, 0 },
                 { SpecialBuffType.SpeedType2, 0 },
-                { SpecialBuffType.RiddleOfFire, 0 },
-                { SpecialBuffType.AstralUmbral, 0 },
+                { SpecialBuffType.RiddleOfFire, 100 },
+                { SpecialBuffType.AstralUmbral, 100 },
             };
         }
     }

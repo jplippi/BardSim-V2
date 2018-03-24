@@ -11,55 +11,56 @@ namespace BardSimV2
     {
          internal static Random rng = new Random();
 
-         internal static decimal AttackPowerDamageMod(int mainstat)
+         internal static decimal AttackPowerDamageMod(decimal mainstat)
         {
-            return Math.Floor((decimal)(125 * (mainstat - 292) / 292) + 100) / 100;
+            return Math.Floor(125 * (mainstat - 292) / 292 + 100) / 100;
         }
-         internal static decimal CriticalHitRate(int crit)
+         internal static decimal CriticalHitRate(decimal crit)
         {
-            return Math.Floor(200 * ((decimal)crit - 364) / 2170 + 50) / 10;
+            return Math.Floor(200 * (crit - 364) / 2170 + 50) / 10;
         }
-         internal static decimal CriticalHitDamageMod(int crit)
+         internal static decimal CriticalHitDamageMod(decimal crit)
         {
-            return Math.Floor((decimal)(200 * (crit - 364) / 2170 + 1400)) / 1000;
+            return Math.Floor(200 * (crit - 364) / 2170 + 1400) / 1000;
         }
-         internal static decimal DirectHitRate(int dhit)
+         internal static decimal DirectHitRate(decimal dhit)
         {
-            return Math.Floor(550 * ((decimal)dhit - 364) / 2170) / 10;
+            return Math.Floor(550 * (dhit - 364) / 2170) / 10;
         }
-         internal static decimal DirectHitDamageMod(int dhit)
+         internal static decimal DirectHitDamageMod(decimal dhit)
         {
             return 1.25m;
         }
-         internal static decimal DeterminationDamageMod(int det)
+         internal static decimal DeterminationDamageMod(decimal det)
         {
-            return Math.Floor((decimal)(130 * (det - 292) / 2170 + 1000)) / 1000;
+            return Math.Floor(130 * (det - 292) / 2170 + 1000) / 1000;
         }
-         internal static decimal SpeedDamageMod(int ss)
+         internal static decimal SpeedDamageMod(decimal ss)
         {
-            return Math.Floor((decimal)(130 * (ss - 364) / 2170 + 1000)) / 1000;
+            return Math.Floor(130 * (ss - 364) / 2170 + 1000) / 1000;
         }
-         internal static decimal SpeedRecast(int ss, decimal recast, decimal arrow = 0, decimal haste = 0, decimal feyWind = 0, decimal speedType1 = 0, decimal speedType2 = 0, decimal riddleOfFire = 100, decimal astralUmbral = 100)
+         internal static decimal SpeedRecast(decimal ss, decimal recast, decimal arrow = 0, decimal haste = 0, decimal feyWind = 0, decimal speedType1 = 0, decimal speedType2 = 0, decimal riddleOfFire = 100, decimal astralUmbral = 100)
         {
-            decimal GCD = Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((decimal)((100 - arrow) * (100 - (speedType1)) / 100)) * (100 - haste) / 100) - feyWind) * ((speedType2) - 100) / 100) * Math.Floor((1000 - Math.Floor((decimal)(130 * (ss - 364) / 2170))) * recast.SecondsToMilli() / 1000) / 100) * riddleOfFire / 1000) * astralUmbral / 100);
+            //decimal GCDm = Math.Floor((1000 - Math.Floor(130 * (ss - 364)/2170)) * recast.SecondsToMilli() / 1000)
+            decimal GCD = Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((100 - arrow) * (100 - (speedType1)) / 100) * (100 - haste) / 100) - feyWind) * ((speedType2) - 100) / -100) * Math.Floor((1000 - Math.Floor(130 * (ss - 364) / 2170)) * (decimal)recast.SecondsToMilli() / 1000) / 100) * riddleOfFire / 1000) * astralUmbral / 100) / 100;
 
-            return GCD;
+                return GCD;
         }
-         internal static decimal TenacityDamageMod(int ten)
+         internal static decimal TenacityDamageMod(decimal ten)
         {
-            return Math.Floor((decimal)(130 * (ten - 364) + 1000)) / 1000;
+            return Math.Floor(130 * (ten - 364) + 1000) / 1000;
         }
-         internal static decimal WeaponDamageMod(int wd)
+         internal static decimal WeaponDamageMod(decimal wd)
         {
-            return Math.Floor((decimal)(292 * 115 / 1000) + wd);
+            return Math.Floor(292 * 115 / 1000 + wd);
         }
-         internal static decimal PotencyMod(int potency)
+         internal static decimal PotencyMod(decimal potency)
         {
-            return (decimal)potency / 100;
+            return potency / 100;
         }
-         internal static decimal AutoAttackMod(int wd, decimal delay)
+         internal static decimal AutoAttackMod(decimal wd, decimal delay)
         {
-            return Math.Floor(Math.Floor((decimal)((292 * 115 / 1000) + wd)) * (delay / 3));
+            return Math.Floor(Math.Floor((292 * 115 / 1000) + wd) * (delay / 3));
         }
          internal static decimal DirectDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
         {

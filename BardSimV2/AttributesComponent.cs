@@ -8,13 +8,13 @@ namespace BardSimV2
 {
     class AttributesComponent : Component
     {
-        private Dictionary<AttributeType, int> attributesDictionary;
+        private Dictionary<AttributeType, decimal> attributesDictionary;
 
-        public Dictionary<AttributeType, int> AttributesDictionary { get => attributesDictionary; }
+        public Dictionary<AttributeType, decimal> AttributesDictionary { get => attributesDictionary; }
 
-        public AttributesComponent(Entity parent, int strenght, int dexterity, int vitality, int intelligence, int mind, int criticalHit, int determination, int directHit, int skillSpeed, int spellSpeed, int tenacity, int piety, int weaponDamage, int weaponDelay) : base (parent)
+        public AttributesComponent(Entity parent, decimal strenght, decimal dexterity, decimal vitality, decimal intelligence, decimal mind, decimal criticalHit, decimal determination, decimal directHit, decimal skillSpeed, decimal spellSpeed, decimal tenacity, decimal piety, decimal weaponDamage, decimal weaponDelay) : base (parent)
         {
-            attributesDictionary = new Dictionary<AttributeType, int>
+            attributesDictionary = new Dictionary<AttributeType, decimal>
             {
                 { AttributeType.Strenght, strenght },
                 { AttributeType.Dexterity, dexterity },

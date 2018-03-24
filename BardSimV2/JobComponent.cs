@@ -14,9 +14,10 @@ namespace BardSimV2
         public Jobs Job { get => job; }
         public List<Entity> SkillList { get => skillList; }
 
-        public JobComponent(Entity parent, Jobs job) : base(parent)
+        public JobComponent(Entity parent, Jobs job, List<Entity> skillList) : base(parent)
         {
             this.job = job;
+            this.skillList = skillList;
         }
     }
 }

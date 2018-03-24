@@ -11,5 +11,10 @@
         {
             return (decimal)i / 1000;
         }
+
+        public static decimal MilliToSeconds(this long l)
+        {
+            return (decimal)l / 1000;
+        }
     }
 }
