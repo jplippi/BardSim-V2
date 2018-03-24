@@ -10,7 +10,6 @@ namespace BardSimV2
 {
     class SkillSystem : ISystem
     {
-        // TODO: Populate with actual components
         List<AttributesComponent> attributesComponents;
         List<BuffStateComponent> buffStateComponents;
         List<HealthComponent> healthComponents;
@@ -19,6 +18,9 @@ namespace BardSimV2
         List<PotencyComponent> potencyComponents;
         List<SkillBaseComponent> skillBaseComponents;
         List<TargetComponent> targetComponents;
+
+        Random rng;
+
 
         public SkillSystem(List<AttributesComponent> attributesComponents, List<BuffStateComponent> buffStateComponents, List<HealthComponent> healthComponents, List<JobComponent> jobComponents, List<KeyMappingComponent> keyMappingComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
         {
@@ -30,6 +32,7 @@ namespace BardSimV2
             this.potencyComponents = potencyComponents;
             this.skillBaseComponents = skillBaseComponents;
             this.targetComponents = targetComponents;
+            rng = new Random();
         }
 
         public void Update(ulong timer, Keyboard keyboard)
@@ -105,7 +108,10 @@ namespace BardSimV2
                             // Checking if skill is on cooldown
                             if (timer - skillBaseComp.Cooldown.Start  >= recast.SecondsToMilli())
                             {
-                                Random rng = new Random();
+                                //DEBUG: debug strings
+                                string critical = " ";
+                                string direct = "";
+
                                 decimal totalDamage = 0;
 
                                 decimal potMod = 1;
@@ -154,18 +160,24 @@ namespace BardSimV2
                                 }
 
                                 // Checks for critical hit chance
-                                if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit])*10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.CriticalHitRate]*10)) < rng.Next(0, 1000))
-                                {
-                                    // Calculates crit modifier
-                                    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.AttributesDictionary[AttributeType.CriticalHit]);
-                                }
+                                //if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit])*10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.CriticalHitRate]*10)) > rng.Next(0, 1000))
+                                //{
+                                //    // Calculates crit modifier
+                                //    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.AttributesDictionary[AttributeType.CriticalHit]);
+
+                                //    //DEBUG: debug string
+                                //    critical = " Critical! ";
+                                //}
 
                                 // Checks for direct hit chance
-                                if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.DirectHitRate] * 10)) < rng.Next(0, 1000))
-                                {
-                                    // Calculates dhit modifier
-                                    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.AttributesDictionary[AttributeType.DirectHit]);
-                                }
+                                //if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.DirectHitRate] * 10)) > rng.Next(0, 1000))
+                                //{
+                                //    // Calculates dhit modifier
+                                //    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.AttributesDictionary[AttributeType.DirectHit]);
+
+                                //    //DEBUG: debug string
+                                //    direct = "Direct Hit! ";
+                                //}
 
                                 totalDamage = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod, dhitMod, buffStateComp.SpecialBuffList);
 
@@ -179,7 +191,7 @@ namespace BardSimV2
                                 skillBaseComp.Cooldown.Start = timer;
 
                                 //DEBUG: Console log
-                                Console.WriteLine("[{0:00.00}] Used {1} for {2} damage.", timer.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage);
+                                Console.WriteLine("[{0:00.00}]{3}{4}Used {1} for {2} damage.", timer.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage,critical,direct);
                             }
                         }
                     }

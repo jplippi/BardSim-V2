@@ -41,10 +41,7 @@ namespace BardSimV2
         }
          internal static decimal SpeedRecast(decimal ss, decimal recast, decimal arrow = 0, decimal haste = 0, decimal feyWind = 0, decimal speedType1 = 0, decimal speedType2 = 0, decimal riddleOfFire = 100, decimal astralUmbral = 100)
         {
-            //decimal GCDm = Math.Floor((1000 - Math.Floor(130 * (ss - 364)/2170)) * recast.SecondsToMilli() / 1000)
-            decimal GCD = Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((100 - arrow) * (100 - (speedType1)) / 100) * (100 - haste) / 100) - feyWind) * ((speedType2) - 100) / -100) * Math.Floor((1000 - Math.Floor(130 * (ss - 364) / 2170)) * (decimal)recast.SecondsToMilli() / 1000) / 100) * riddleOfFire / 1000) * astralUmbral / 100) / 100;
-
-                return GCD;
+            return Math.Floor(Math.Floor(Math.Floor(Math.Ceiling(Math.Floor(Math.Floor(Math.Floor((100 - arrow) * (100 - (speedType1)) / 100) * (100 - haste) / 100) - feyWind) * ((speedType2) - 100) / -100) * Math.Floor((1000 - Math.Floor(130 * (ss - 364) / 2170)) * (decimal)recast.SecondsToMilli() / 1000) / 100) * riddleOfFire / 1000) * astralUmbral / 100) / 100;
         }
          internal static decimal TenacityDamageMod(decimal ten)
         {
@@ -54,7 +51,7 @@ namespace BardSimV2
         {
             return Math.Floor(292 * 115 / 1000 + wd);
         }
-         internal static decimal PotencyMod(decimal potency)
+         internal static decimal PotencyMod(decimal potency)    
         {
             return potency / 100;
         }
@@ -64,7 +61,9 @@ namespace BardSimV2
         }
          internal static decimal DirectDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
         {
-            decimal damage = Math.Floor(Math.Floor(Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * critMod) * dhitMod) * ((decimal)rng.Next(95, 101) / 100));
+            decimal damage = Math.Floor(Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * critMod) * dhitMod);
+
+            damage = rng.Next((int)Math.Floor(damage * 0.95m), (int)Math.Floor(damage * 1.05m) + 1);
 
             foreach (SpecialBuff b in buffList)
             {
@@ -78,7 +77,11 @@ namespace BardSimV2
         }
          internal static decimal DoTDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
         {
-            decimal damage = Math.Floor(Math.Floor(Math.Floor(Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * ssMod) * ((decimal)rng.Next(95, 101) / 100)) * critMod) * dhitMod);
+            decimal damage = Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * ssMod);
+
+            damage = rng.Next((int)Math.Floor(damage * 0.95m), (int)Math.Floor(damage * 1.05m) + 1);
+
+            damage = Math.Floor(Math.Floor(damage * critMod) * dhitMod);
 
             foreach (SpecialBuff b in buffList)
             {
@@ -93,7 +96,9 @@ namespace BardSimV2
 
          internal static decimal AutoAttackDamage(decimal potMod, decimal aaMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
         {
-            decimal damage = Math.Floor(Math.Floor(Math.Floor(Math.Floor(Math.Floor(potMod * aaMod * apMod * detMod * tenMod * traitMod) * ssMod) * critMod) * dhitMod) * ((decimal)rng.Next(95, 101) / 100));
+            decimal damage = Math.Floor(Math.Floor(Math.Floor(Math.Floor(potMod * aaMod * apMod * detMod * tenMod * traitMod) * ssMod) * critMod) * dhitMod);
+
+            damage = rng.Next((int)Math.Floor(damage * 0.95m), (int)Math.Floor(damage * 1.05m) + 1);
 
             foreach (SpecialBuff b in buffList)
             {
