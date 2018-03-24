@@ -171,16 +171,46 @@ namespace BardSimV2
             _systems.Add(new KeystrokeListenerSystem(keyMappingComponents));
             _systems.Add(new SkillSystem(attributesComponents, buffStateComponents, healthComponents, jobComponents, keyMappingComponents, potencyComponents, skillBaseComponents, targetComponents));
 
-            // Starts the timer
-            ulong timer = 0;
+            // Asks for run mode
+            bool invalidMode = true;
 
-            while (true)
+            while(invalidMode == true)
             {
-                foreach (ISystem sys in _systems)
+                Console.WriteLine("Enter 'R' for real-time mode, or 'F' for fast mode:");
+                char mode = Console.ReadLine()[0];
+       
+                if(mode == 'R')
                 {
-                    sys.Update(timer, keyboard);
-                };
-                timer += 10;
+                    invalidMode = false;
+
+                    // Starts the timer
+                    Stopwatch realTimer = new Stopwatch();
+                    realTimer.Start();
+
+                    while (true)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update((ulong)realTimer.ElapsedMilliseconds, keyboard);
+                        };
+
+                    }
+                }else if(mode == 'F')
+                {
+                    invalidMode = false;
+
+                    // Starts the timer
+                    ulong fastTimer = 0;
+
+                    while (true)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update(fastTimer, keyboard);
+                        };
+                        fastTimer += 10;
+                    }
+                }
             }
         }
     }

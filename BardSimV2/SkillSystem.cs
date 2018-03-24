@@ -160,24 +160,24 @@ namespace BardSimV2
                                 }
 
                                 // Checks for critical hit chance
-                                //if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit])*10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.CriticalHitRate]*10)) > rng.Next(0, 1000))
-                                //{
-                                //    // Calculates crit modifier
-                                //    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.AttributesDictionary[AttributeType.CriticalHit]);
+                                if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.CriticalHitRate] * 10)) > rng.Next(0, 1000))
+                                {
+                                    // Calculates crit modifier
+                                    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.AttributesDictionary[AttributeType.CriticalHit]);
 
-                                //    //DEBUG: debug string
-                                //    critical = " Critical! ";
-                                //}
+                                    //DEBUG: debug string
+                                    critical = " Critical! ";
+                                }
 
                                 // Checks for direct hit chance
-                                //if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.DirectHitRate] * 10)) > rng.Next(0, 1000))
-                                //{
-                                //    // Calculates dhit modifier
-                                //    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.AttributesDictionary[AttributeType.DirectHit]);
+                                if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.DirectHitRate] * 10)) > rng.Next(0, 1000))
+                                {
+                                    // Calculates dhit modifier
+                                    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.AttributesDictionary[AttributeType.DirectHit]);
 
-                                //    //DEBUG: debug string
-                                //    direct = "Direct Hit! ";
-                                //}
+                                    //DEBUG: debug string
+                                    direct = "Direct Hit! ";
+                                }
 
                                 totalDamage = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod, dhitMod, buffStateComp.SpecialBuffList);
 
