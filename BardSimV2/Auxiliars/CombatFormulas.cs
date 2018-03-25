@@ -59,15 +59,15 @@ namespace BardSimV2
         {
             return Math.Floor(Math.Floor((292 * 115 / 1000) + wd) * (delay / 3));
         }
-         internal static decimal DirectDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
+         internal static decimal DirectDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal critMod, decimal dhitMod, List<Buff> buffList)
         {
             decimal damage = Math.Floor(Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * critMod) * dhitMod);
 
             damage = rng.Next((int)Math.Floor(damage * 0.95m), (int)Math.Floor(damage * 1.05m) + 1);
 
-            foreach (SpecialBuff b in buffList)
+            foreach (Buff b in buffList)
             {
-                if(b.Attribute == SpecialBuffType.Damage)
+                if(b.Type == AttributeType.Damage)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }
@@ -75,7 +75,7 @@ namespace BardSimV2
 
             return damage;
         }
-         internal static decimal DoTDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
+         internal static decimal DoTDamage(decimal potMod, decimal wdMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<Buff> buffList)
         {
             decimal damage = Math.Floor(Math.Floor(potMod * wdMod * apMod * detMod * tenMod * traitMod) * ssMod);
 
@@ -83,9 +83,9 @@ namespace BardSimV2
 
             damage = Math.Floor(Math.Floor(damage * critMod) * dhitMod);
 
-            foreach (SpecialBuff b in buffList)
+            foreach (Buff b in buffList)
             {
-                if (b.Attribute == SpecialBuffType.Damage)
+                if (b.Type == AttributeType.Damage)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }
@@ -94,15 +94,15 @@ namespace BardSimV2
             return damage;
         }
 
-         internal static decimal AutoAttackDamage(decimal potMod, decimal aaMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<SpecialBuff> buffList)
+         internal static decimal AutoAttackDamage(decimal potMod, decimal aaMod, decimal apMod, decimal detMod, decimal tenMod, decimal traitMod, decimal ssMod, decimal critMod, decimal dhitMod, List<Buff> buffList)
         {
             decimal damage = Math.Floor(Math.Floor(Math.Floor(Math.Floor(potMod * aaMod * apMod * detMod * tenMod * traitMod) * ssMod) * critMod) * dhitMod);
 
             damage = rng.Next((int)Math.Floor(damage * 0.95m), (int)Math.Floor(damage * 1.05m) + 1);
 
-            foreach (SpecialBuff b in buffList)
+            foreach (Buff b in buffList)
             {
-                if (b.Attribute == SpecialBuffType.Damage)
+                if (b.Type == AttributeType.Damage)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }

@@ -26,34 +26,44 @@ namespace BardSimV2
 
             // Initializing skill entities
             Entity heavyShot = new Entity();
+            Entity straightShot = new Entity();
+            Entity refulgentArrow = new Entity();
+            Entity bloodletter = new Entity();
+            Entity empyrealArrow = new Entity();
+            Entity pitchPerfect = new Entity();
+
+            List<Entity> gcdSkillList = new List<Entity>
+            {
+                heavyShot,
+                straightShot,
+                refulgentArrow
+            };
+
             heavyShot.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(heavyShot, SkillName.HeavyShot, SkillType.Weaponskill, new Cooldown(2.5m)),
-                    new PotencyComponent(heavyShot, 150)
-                    // TODO: Add shared cooldown component
+                    new PotencyComponent(heavyShot, 150),
+                    new SharedCooldownComponent(heavyShot, gcdSkillList)
                     // TODO: Add special effect component
                 });
 
-            Entity straightShot = new Entity();
             straightShot.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(straightShot, SkillName.StraightShot, SkillType.Weaponskill, new Cooldown(2.5m)),
-                    new PotencyComponent(straightShot, 140)
-                    // TODO: Add shared cooldown component
-                    // TODO: Add special effect component
+                    new PotencyComponent(straightShot, 140),
+                    new ApplyBuffEffectComponent(straightShot, AttributeType.CriticalHitRate, ActorType.Self, 30, 10),
+                    new SharedCooldownComponent(straightShot, gcdSkillList)
                 });
 
-            Entity refulgentArrow = new Entity();
             refulgentArrow.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(refulgentArrow, SkillName.RefulgentArrow, SkillType.Weaponskill, new Cooldown(2.5m)),
-                    new PotencyComponent(refulgentArrow, 300)
-                    // TODO: Add shared cooldown component
+                    new PotencyComponent(refulgentArrow, 300),
+                    new SharedCooldownComponent(refulgentArrow, gcdSkillList)
                     // TODO: Add special effect component
                     // TODO: Add conditional component
                 });
 
-            Entity bloodletter = new Entity();
             bloodletter.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(bloodletter, SkillName.Bloodletter, SkillType.Ability, new Cooldown(15m)),
@@ -61,7 +71,6 @@ namespace BardSimV2
                     // TODO: Add shared cooldown component
                 });
 
-            Entity empyrealArrow = new Entity();
             empyrealArrow.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(empyrealArrow, SkillName.EmpyrealArrow, SkillType.Weaponskill, new Cooldown(15m)),
@@ -69,7 +78,6 @@ namespace BardSimV2
                     // TODO: Add special effect component
                 });
 
-            Entity pitchPerfect = new Entity();
             pitchPerfect.AddComponents(new List<Component>
                 {
                     new SkillBaseComponent(pitchPerfect, SkillName.PitchPerfect, SkillType.Ability, new Cooldown(3m)),
@@ -119,12 +127,14 @@ namespace BardSimV2
             _entities.Add(pitchPerfect);
 
             // Making component lists
+            List<ApplyBuffEffectComponent> applyBuffEffectComponents = new List<ApplyBuffEffectComponent>();
             List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
             List<BuffStateComponent> buffStateComponents = new List<BuffStateComponent>();
             List<HealthComponent> healthComponents = new List<HealthComponent>();
             List<JobComponent> jobComponents = new List<JobComponent>();
             List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
             List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
+            List<SharedCooldownComponent> sharedCooldownComponents = new List<SharedCooldownComponent>();
             List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
             List<TargetComponent> targetComponents = new List<TargetComponent>();
 
@@ -132,10 +142,13 @@ namespace BardSimV2
             {
                 foreach (Component c in e.Components)
                 {
-                    if(c is AttributesComponent)
+                    if (c is ApplyBuffEffectComponent)
+                    {
+                        applyBuffEffectComponents.Add((ApplyBuffEffectComponent)c);
+                    } else if (c is AttributesComponent)
                     {
                         attributesComponents.Add((AttributesComponent)c);
-                    }else if(c is BuffStateComponent)
+                    } else if (c is BuffStateComponent)
                     {
                         buffStateComponents.Add((BuffStateComponent)c);
                     }
@@ -155,6 +168,10 @@ namespace BardSimV2
                     {
                         potencyComponents.Add((PotencyComponent)c);
                     }
+                    else if (c is SharedCooldownComponent)
+                    {
+                        sharedCooldownComponents.Add((SharedCooldownComponent)c);
+                    }
                     else if (c is SkillBaseComponent)
                     {
                         skillBaseComponents.Add((SkillBaseComponent)c);
@@ -167,9 +184,10 @@ namespace BardSimV2
             }
 
             // Initializing systems
-            _systems.Add(new AIDebugSystem());
+            _systems.Add(new AIDebugSystem(player, buffStateComponents, skillBaseComponents));
             _systems.Add(new KeystrokeListenerSystem(keyMappingComponents));
-            _systems.Add(new SkillSystem(attributesComponents, buffStateComponents, healthComponents, jobComponents, keyMappingComponents, potencyComponents, skillBaseComponents, targetComponents));
+            _systems.Add(new BuffSystem(buffStateComponents));
+            _systems.Add(new SkillSystem(applyBuffEffectComponents, attributesComponents, buffStateComponents, healthComponents, jobComponents, keyMappingComponents, potencyComponents, sharedCooldownComponents, skillBaseComponents, targetComponents));
 
             // Asks for run mode
             bool invalidMode = true;

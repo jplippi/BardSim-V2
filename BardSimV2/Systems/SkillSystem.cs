@@ -10,26 +10,30 @@ namespace BardSimV2
 {
     class SkillSystem : ISystem
     {
+        List<ApplyBuffEffectComponent> applyBuffEffectComponents;
         List<AttributesComponent> attributesComponents;
         List<BuffStateComponent> buffStateComponents;
         List<HealthComponent> healthComponents;
         List<JobComponent> jobComponents;
         List<KeyMappingComponent> keyMappingComponents;
         List<PotencyComponent> potencyComponents;
+        List<SharedCooldownComponent> sharedCooldownComponents;
         List<SkillBaseComponent> skillBaseComponents;
         List<TargetComponent> targetComponents;
 
         Random rng;
 
 
-        public SkillSystem(List<AttributesComponent> attributesComponents, List<BuffStateComponent> buffStateComponents, List<HealthComponent> healthComponents, List<JobComponent> jobComponents, List<KeyMappingComponent> keyMappingComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
+        public SkillSystem(List<ApplyBuffEffectComponent> applyBuffEffectComponents, List<AttributesComponent> attributesComponents, List<BuffStateComponent> buffStateComponents, List<HealthComponent> healthComponents, List<JobComponent> jobComponents, List<KeyMappingComponent> keyMappingComponents, List<PotencyComponent> potencyComponents, List<SharedCooldownComponent> sharedCooldownComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
         {
+            this.applyBuffEffectComponents = applyBuffEffectComponents;
             this.attributesComponents = attributesComponents;
             this.buffStateComponents = buffStateComponents;
             this.healthComponents = healthComponents;
             this.jobComponents = jobComponents;
             this.keyMappingComponents = keyMappingComponents;
             this.potencyComponents = potencyComponents;
+            this.sharedCooldownComponents = sharedCooldownComponents;
             this.skillBaseComponents = skillBaseComponents;
             this.targetComponents = targetComponents;
             rng = new Random();
@@ -66,6 +70,8 @@ namespace BardSimV2
 
                         // More skill components
                         PotencyComponent potComp = potencyComponents.Find(x => x.Parent == skill);
+                        ApplyBuffEffectComponent appBuffComp = applyBuffEffectComponents.Find(x => x.Parent == skill);
+                        SharedCooldownComponent sharedCdComp = sharedCooldownComponents.Find(x => x.Parent == skill);
 
                         if (keyBind.IsActive)
                         {
@@ -75,29 +81,29 @@ namespace BardSimV2
                             {
                                 recast = CombatFormulas.SpeedRecast
                                     (
-                                        attComp.AttributesDictionary[AttributeType.SkillSpeed] + buffStateComp.AttributesDictionary[AttributeType.SkillSpeed],
+                                        attComp.AttributesDictionary[AttributeType.SkillSpeed] + buffStateComp.BuffDictionary[AttributeType.SkillSpeed],
                                         skillBaseComp.Cooldown.BaseRecast,
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Arrow],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Haste],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.FeyWind],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType1],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType2],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.RiddleOfFire],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.AstralUmbral]
+                                        buffStateComp.BuffDictionary[AttributeType.Arrow],
+                                        buffStateComp.BuffDictionary[AttributeType.Haste],
+                                        buffStateComp.BuffDictionary[AttributeType.FeyWind],
+                                        buffStateComp.BuffDictionary[AttributeType.SpeedType1],
+                                        buffStateComp.BuffDictionary[AttributeType.SpeedType2],
+                                        buffStateComp.BuffDictionary[AttributeType.RiddleOfFire],
+                                        buffStateComp.BuffDictionary[AttributeType.AstralUmbral]
                                     );
                             }else if(skillBaseComp.Type == SkillType.Spell)
                             {
                                 recast = CombatFormulas.SpeedRecast
                                     (
-                                        attComp.AttributesDictionary[AttributeType.SpellSpeed] + buffStateComp.AttributesDictionary[AttributeType.SpellSpeed],
+                                        attComp.AttributesDictionary[AttributeType.SpellSpeed] + buffStateComp.BuffDictionary[AttributeType.SpellSpeed],
                                         skillBaseComp.Cooldown.BaseRecast,
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Arrow],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.Haste],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.FeyWind],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType1],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.SpeedType2],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.RiddleOfFire],
-                                        buffStateComp.SpecialBuffDictionary[SpecialBuffType.AstralUmbral]
+                                        buffStateComp.BuffDictionary[AttributeType.Arrow],
+                                        buffStateComp.BuffDictionary[AttributeType.Haste],
+                                        buffStateComp.BuffDictionary[AttributeType.FeyWind],
+                                        buffStateComp.BuffDictionary[AttributeType.SpeedType1],
+                                        buffStateComp.BuffDictionary[AttributeType.SpeedType2],
+                                        buffStateComp.BuffDictionary[AttributeType.RiddleOfFire],
+                                        buffStateComp.BuffDictionary[AttributeType.AstralUmbral]
                                     );
                             }
                             else
@@ -106,11 +112,12 @@ namespace BardSimV2
                             }
 
                             // Checking if skill is on cooldown
-                            if (timer - skillBaseComp.Cooldown.Start  >= recast.SecondsToMilli())
+                            if (timer - skillBaseComp.Cooldown.Start  >= (ulong)recast.SecondsToMilli())
                             {
                                 //DEBUG: debug strings
                                 string critical = " ";
                                 string direct = "";
+                                decimal critchance;
 
                                 decimal totalDamage = 0;
 
@@ -132,23 +139,23 @@ namespace BardSimV2
                                 // Calculates attack power modifier
                                 if(jobComp.Job == Jobs.Paladin || jobComp.Job == Jobs.Warrior || jobComp.Job == Jobs.DarkKnight || jobComp.Job == Jobs.Monk || jobComp.Job == Jobs.Dragoon || jobComp.Job == Jobs.Samurai)
                                 {
-                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Strenght] + buffStateComp.AttributesDictionary[AttributeType.Strenght]);
+                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Strenght] + buffStateComp.BuffDictionary[AttributeType.Strenght]);
                                 }else if(jobComp.Job == Jobs.Ninja || jobComp.Job == Jobs.Bard || jobComp.Job == Jobs.Machinist)
                                 {
-                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Dexterity] + buffStateComp.AttributesDictionary[AttributeType.Dexterity]);
+                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Dexterity] + buffStateComp.BuffDictionary[AttributeType.Dexterity]);
                                 }else if (jobComp.Job == Jobs.BlackMage || jobComp.Job == Jobs.Summoner || jobComp.Job == Jobs.RedMage)
                                 {
-                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Intelligence] + buffStateComp.AttributesDictionary[AttributeType.Intelligence]);
+                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Intelligence] + buffStateComp.BuffDictionary[AttributeType.Intelligence]);
                                 }else if (jobComp.Job == Jobs.WhiteMage || jobComp.Job == Jobs.Scholar || jobComp.Job == Jobs.Astrologian)
                                 {
-                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Mind] + buffStateComp.AttributesDictionary[AttributeType.Mind]);
+                                    apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Mind] + buffStateComp.BuffDictionary[AttributeType.Mind]);
                                 }
 
                                 // Calculates determination modifier
-                                detMod = CombatFormulas.DeterminationDamageMod(attComp.AttributesDictionary[AttributeType.Determination] + buffStateComp.AttributesDictionary[AttributeType.Determination]);
+                                detMod = CombatFormulas.DeterminationDamageMod(attComp.AttributesDictionary[AttributeType.Determination] + buffStateComp.BuffDictionary[AttributeType.Determination]);
 
                                 // Calculates tenacity modifier
-                                tenMod = CombatFormulas.TenacityDamageMod(attComp.AttributesDictionary[AttributeType.Tenacity] + buffStateComp.AttributesDictionary[AttributeType.Tenacity]);
+                                tenMod = CombatFormulas.TenacityDamageMod(attComp.AttributesDictionary[AttributeType.Tenacity] + buffStateComp.BuffDictionary[AttributeType.Tenacity]);
 
                                 // Calculates trait modifier
                                 if(jobComp.Job == Jobs.Ninja || jobComp.Job == Jobs.Bard || jobComp.Job == Jobs.Machinist)
@@ -159,39 +166,70 @@ namespace BardSimV2
                                     traitMod = 1.3m;
                                 }
 
+                                // DEBUG: debug value
+                                critchance = ((CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit])) + (buffStateComp.BuffDictionary[AttributeType.CriticalHitRate]));
+
                                 // Checks for critical hit chance
-                                if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.CriticalHitRate] * 10)) > rng.Next(0, 1000))
+                                if (((int)(CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit]) * 10) + (int)(buffStateComp.BuffDictionary[AttributeType.CriticalHitRate] * 10)) > rng.Next(0, 1000))
                                 {
+
                                     // Calculates crit modifier
-                                    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.AttributesDictionary[AttributeType.CriticalHit]);
+                                    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + buffStateComp.BuffDictionary[AttributeType.CriticalHit]);
 
                                     //DEBUG: debug string
                                     critical = " Critical! ";
                                 }
 
                                 // Checks for direct hit chance
-                                if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.SpecialBuffDictionary[SpecialBuffType.DirectHitRate] * 10)) > rng.Next(0, 1000))
+                                if (((int)(CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) * 10) + (int)(buffStateComp.BuffDictionary[AttributeType.DirectHitRate] * 10)) > rng.Next(0, 1000))
                                 {
                                     // Calculates dhit modifier
-                                    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.AttributesDictionary[AttributeType.DirectHit]);
+                                    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + buffStateComp.BuffDictionary[AttributeType.DirectHit]);
 
                                     //DEBUG: debug string
                                     direct = "Direct Hit! ";
                                 }
 
-                                totalDamage = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod, dhitMod, buffStateComp.SpecialBuffList);
-
-                                //TODO: Resolve effects
+                                totalDamage = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod, dhitMod, buffStateComp.BuffList);
 
                                 // Inflicts damage on target's health component
                                 healthComp.Amount -= totalDamage;
                                 healthComp.DamageTaken += totalDamage;
 
-                                // Puts skill on cooldown
-                                skillBaseComp.Cooldown.Start = timer;
+                                // Logic for cooldown
+                                if(sharedCdComp != null)
+                                {
+                                    foreach (Entity s in sharedCdComp.SkillList)
+                                    {
+                                        var sbComp = skillBaseComponents.Find(x => x.Parent == s);
+
+                                        sbComp.Cooldown.Start = timer;
+                                    }
+                                }
+                                else
+                                {
+                                    skillBaseComp.Cooldown.Start = timer;
+                                }
+
+                                // Logic for buff effects
+                                if(appBuffComp != null)
+                                {
+                                    Buff b = buffStateComp.BuffList.Find(x => x.SkillSource == skill && x.UserSource == entity && x.Type == appBuffComp.Type);
+
+                                    // If there's already the same buff applied, refreshed the timer
+                                    if(b != null)
+                                    {
+                                        b.Start = timer;
+                                    }
+                                    // Otherwise, adds the buff
+                                    else
+                                    {
+                                        buffStateComp.BuffList.Add(new Buff(skill, entity, appBuffComp.Type, appBuffComp.Duration, timer, appBuffComp.Modifier, false));
+                                    }
+                                }
 
                                 //DEBUG: Console log
-                                Console.WriteLine("[{0:00.00}]{3}{4}Used {1} for {2} damage.", timer.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage,critical,direct);
+                                Console.WriteLine("[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5})", timer.MilliToSeconds(),skillBaseComp.Name.ToString(), totalDamage,critical,direct,critchance);
                             }
                         }
                     }

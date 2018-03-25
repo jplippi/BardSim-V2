@@ -9,7 +9,6 @@ namespace BardSimV2
 {
     class KeystrokeListenerSystem : ISystem
     {
-        // TODO: To be populated with actual components
         List<KeyMappingComponent> keyMappingComponents;
 
         public KeystrokeListenerSystem(List<KeyMappingComponent> keyMappingComponents)
