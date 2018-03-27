@@ -45,15 +45,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\SharedCooldownComponent.cs" />
+    <Compile Include="Auxiliars\DoT.cs" />
+    <Compile Include="Components\DotEffectComponent.cs" />
+    <Compile Include="Enumerations\DotName.cs" />
+    <Compile Include="Enumerations\DamageModifierType.cs" />
+    <Compile Include="Enumerations\StatusName.cs" />
     <Compile Include="Enumerations\ActorType.cs" />
+    <Compile Include="Systems\OverTimeSystem.cs" />
     <Compile Include="Systems\BuffSystem.cs" />
     <Compile Include="Systems\AIDebugSystem.cs" />
-    <Compile Include="Components\ApplyBuffEffectComponent.cs" />
+    <Compile Include="Components\StatusEffectComponent.cs" />
     <Compile Include="Components\AttributesComponent.cs" />
-    <Compile Include="Enumerations\BuffType.cs" />
+    <Compile Include="Enumerations\AttributeType.cs" />
     <Compile Include="Auxiliars\Buff.cs" />
-    <Compile Include="Components\BuffStateComponent.cs" />
+    <Compile Include="Components\ModifierStateComponent.cs" />
     <Compile Include="Auxiliars\CombatFormulas.cs" />
     <Compile Include="Auxiliars\Cooldown.cs" />
     <Compile Include="Auxiliars\ExtensionMethods.cs" />
@@ -73,6 +78,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enumerations\SkillName.cs" />
+    <Compile Include="Components\OverTimeStateComponent.cs" />
     <Compile Include="Systems\SkillSystem.cs" />
     <Compile Include="Enumerations\SkillType.cs" />
     <Compile Include="Components\SkillBaseComponent.cs" />

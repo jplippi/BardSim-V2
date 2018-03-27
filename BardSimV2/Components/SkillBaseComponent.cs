@@ -10,17 +10,14 @@ namespace BardSimV2
     {
         private SkillName name;
         private SkillType type;
-        private Cooldown cooldown;
 
         public SkillName Name { get => name; }
         public SkillType Type { get => type; }
-        public Cooldown Cooldown { get => cooldown; }
 
-        public SkillBaseComponent(Entity parent, SkillName name, SkillType type, Cooldown cooldown) : base(parent)
+        public SkillBaseComponent(Entity parent, SkillName name, SkillType type) : base(parent)
         {
             this.name = name;
             this.type = type;
-            this.cooldown = cooldown;
         }
     }
 }

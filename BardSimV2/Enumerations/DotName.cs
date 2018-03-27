@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    enum Keys
+    enum DotName
     {
-        Num1,
-        Num2,
-        Num3,
-        Num4,
-        Num6,
-        F3,
-        R,
-        T
+        //Bard
+        VenomousBite,
+        WindBite,
+        CausticBite,
+        StormBite
     }
 }

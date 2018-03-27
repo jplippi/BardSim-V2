@@ -9,26 +9,26 @@ namespace BardSimV2
 {
     class BuffSystem : ISystem
     {
-        List<BuffStateComponent> buffStateComponents;
+        List<ModifierStateComponent> modifierStateComponents;
         List<Buff> toBeRemoved = new List<Buff>();
 
-        public BuffSystem(List<BuffStateComponent> buffStateComponents)
+        public BuffSystem(List<ModifierStateComponent> modifierStateComponents)
         {
-            this.buffStateComponents = buffStateComponents;
+            this.modifierStateComponents = modifierStateComponents;
         }
 
         public void Update(ulong timer, Keyboard keyboard)
         {
-            foreach (BuffStateComponent buffStateComp in buffStateComponents)
+            foreach (ModifierStateComponent modStateComp in modifierStateComponents)
             {
-                foreach (Buff buff in buffStateComp.BuffList)
+                foreach (Buff buff in modStateComp.BuffList)
                 {
                     // Remove buffs if they're expired
                     if (timer - buff.Start > (ulong)buff.Duration.SecondsToMilli())
                     {
                         if(buff.Type != AttributeType.Damage)
                         {
-                            buffStateComp.BuffDictionary[buff.Type] -= buff.Modifier;
+                            modStateComp.BuffDictionary[buff.Type] -= buff.Modifier;
                         }
 
                         toBeRemoved.Add(buff);
@@ -36,14 +36,18 @@ namespace BardSimV2
                     // Activates the buff if it's not active
                     }else if (!buff.IsActive)
                     {
-                        buffStateComp.BuffDictionary[buff.Type] += buff.Modifier;
+                        if (buff.Type != AttributeType.Damage)
+                        {
+                            modStateComp.BuffDictionary[buff.Type] += buff.Modifier;
+                        }
+
                         buff.IsActive = true;
                     }
                 }
 
                 foreach (Buff buff in toBeRemoved)
                 {
-                    buffStateComp.BuffList.Remove(buff);
+                    modStateComp.BuffList.Remove(buff);
                 }
             }
         }

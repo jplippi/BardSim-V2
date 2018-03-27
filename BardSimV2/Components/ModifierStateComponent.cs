@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    class BuffStateComponent : Component
+    class ModifierStateComponent : Component
     {
         private Dictionary<AttributeType, decimal> buffDictionary;
         private List<Buff> buffList = new List<Buff>();
@@ -15,7 +15,7 @@ namespace BardSimV2
         public Dictionary<AttributeType, decimal> BuffDictionary { get => buffDictionary; }
         public List<Buff> BuffList { get => buffList; }
 
-        public BuffStateComponent(Entity parent) : base(parent)
+        public ModifierStateComponent(Entity parent) : base(parent)
         {
             buffDictionary = new Dictionary<AttributeType, decimal>
             {

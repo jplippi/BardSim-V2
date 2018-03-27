@@ -67,7 +67,7 @@ namespace BardSimV2
 
             foreach (Buff b in buffList)
             {
-                if(b.Type == AttributeType.Damage)
+                if(b.Type == AttributeType.Damage && b.IsActive)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }
@@ -85,7 +85,7 @@ namespace BardSimV2
 
             foreach (Buff b in buffList)
             {
-                if (b.Type == AttributeType.Damage)
+                if (b.Type == AttributeType.Damage && b.IsActive)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }
@@ -102,7 +102,7 @@ namespace BardSimV2
 
             foreach (Buff b in buffList)
             {
-                if (b.Type == AttributeType.Damage)
+                if (b.Type == AttributeType.Damage && b.IsActive)
                 {
                     damage = Math.Floor(damage * b.Modifier);
                 }

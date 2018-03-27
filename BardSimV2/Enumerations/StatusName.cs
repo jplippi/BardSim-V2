@@ -6,15 +6,11 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    enum Keys
+    enum StatusName
     {
-        Num1,
-        Num2,
-        Num3,
-        Num4,
-        Num6,
-        F3,
-        R,
-        T
+        StraightShot,
+        StraighterShot,
+        RagingStrikes,
+        Barrage
     }
 }

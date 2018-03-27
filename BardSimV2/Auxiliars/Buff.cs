@@ -8,26 +8,29 @@ namespace BardSimV2
 {
     class Buff
     {
-        private Entity skillSource;
+        private Entity buffTarget;
         private Entity userSource;
+        private StatusName name;
         private AttributeType type;
         private decimal duration;
         private ulong start;
         private decimal modifier;
         private bool isActive;
 
-        public Entity SkillSource { get => skillSource; }
+        public Entity BuffTarget { get => buffTarget; }
         public Entity UserSource { get => userSource; }
+        public StatusName Name { get => name; }
         public AttributeType Type { get => type; }
         public decimal Duration { get => duration; }
         public decimal Modifier { get => modifier; }
         public ulong Start { get => start; set => start = value; }
         public bool IsActive { get => isActive; set => isActive = value; }
 
-        public Buff(Entity skillSource, Entity userSource, AttributeType type, decimal duration, ulong start, decimal modifier, bool isActive)
+        public Buff(Entity buffTarget, Entity userSource, StatusName name, AttributeType type, decimal duration, ulong start, decimal modifier, bool isActive)
         {
-            this.skillSource = skillSource;
+            this.buffTarget = buffTarget;
             this.userSource = userSource;
+            this.name = name;
             this.type = type;
             this.duration = duration;
             this.start = start;
