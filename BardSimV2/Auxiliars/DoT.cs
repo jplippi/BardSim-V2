@@ -13,8 +13,8 @@ namespace BardSimV2
         private DotName name;
         private decimal potency;
         private decimal duration;
-        private ulong start;
-        private ulong lastTick;
+        private decimal start;
+        private decimal lastTick;
         private Dictionary<DamageModifierType, decimal> usersModifiersDictionary;
         private Dictionary<AttributeType, decimal> usersChancesDictionary;
         private List<Buff> usersBuffList;
@@ -25,14 +25,14 @@ namespace BardSimV2
         public DotName Name { get => name; }
         public decimal Potency { get => potency; }
         public decimal Duration { get => duration; }
-        public ulong Start { get => start; set => start = value; }
-        public ulong LastTick { get => lastTick; set => lastTick = value; }
+        public decimal Start { get => start; set => start = value; }
+        public decimal LastTick { get => lastTick; set => lastTick = value; }
         public Dictionary<DamageModifierType, decimal> UsersModifiersDictionary { get => usersModifiersDictionary; }
         public Dictionary<AttributeType, decimal> UsersChancesDictionary { get => usersChancesDictionary; }
         public List<Buff> UsersBuffList { get => usersBuffList; }
         public bool IsActive { get => isActive; set => isActive = value; }
 
-        public DoT(Entity dotTarget, Entity userSource, Dictionary<DamageModifierType, decimal> usersModifiersDictionary, Dictionary<AttributeType, decimal> usersChancesDictionary, List<Buff> usersBuffList, DotName name, decimal potency, decimal duration, ulong start, bool isActive)
+        public DoT(Entity dotTarget, Entity userSource, Dictionary<DamageModifierType, decimal> usersModifiersDictionary, Dictionary<AttributeType, decimal> usersChancesDictionary, List<Buff> usersBuffList, DotName name, decimal potency, decimal duration, decimal start, bool isActive)
         {
             this.dotTarget = dotTarget;
             this.userSource = userSource;

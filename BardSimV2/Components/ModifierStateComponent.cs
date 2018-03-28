@@ -10,10 +10,12 @@ namespace BardSimV2
     {
         private Dictionary<AttributeType, decimal> buffDictionary;
         private List<Buff> buffList = new List<Buff>();
+        private List<Enabler> enablerList = new List<Enabler>();
 
 
         public Dictionary<AttributeType, decimal> BuffDictionary { get => buffDictionary; }
         public List<Buff> BuffList { get => buffList; }
+        public List<Enabler> EnablerList { get => enablerList; }
 
         public ModifierStateComponent(Entity parent) : base(parent)
         {

@@ -20,7 +20,7 @@ namespace BardSimV2
             this.overtimeStateComponents = overtimeStateComponents;
         }
 
-        public void Update(ulong timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard)
         {
             foreach(OverTimeStateComponent otStateComp in overtimeStateComponents)
             {
@@ -30,7 +30,7 @@ namespace BardSimV2
                 foreach(DoT dot in otStateComp.DotList)
                 {
                     // Remove the DoT if it's expired
-                    if(timer - dot.Start > (ulong)dot.Duration.SecondsToMilli())
+                    if(timer - dot.Start > dot.Duration)
                     {
                         toBeRemoved.Add(dot);
                     }
@@ -40,7 +40,7 @@ namespace BardSimV2
                         dot.IsActive = true;
 
                         // Executes the damage
-                        if(((timer - (ulong)otStateComp.Offset.SecondsToMilli()) % (ulong)(3m.SecondsToMilli()) == 0) && (timer - dot.LastTick >= (ulong)3m.SecondsToMilli()))
+                        if(((timer - otStateComp.Offset) % (3m) == 0) && (timer - dot.LastTick >= 3m))
                         {
                             //DEBUG: debug strings
                             string critical = " ";
@@ -83,7 +83,7 @@ namespace BardSimV2
                             dot.LastTick = timer;
 
                             //DEBUG: Console log
-                            Console.WriteLine("    [{0:00.00}]{3}{4}{1} ticked for {2} damage. (Crit Chance: {5})", timer.MilliToSeconds(), dot.Name.ToString(), dotTick, critical, direct, dot.UsersChancesDictionary[AttributeType.CriticalHitRate]);
+                            Console.WriteLine("    [{0:00.00}]{3}{4}{1} ticked for {2} damage. (Crit Chance: {5})", timer, dot.Name.ToString(), dotTick, critical, direct, dot.UsersChancesDictionary[AttributeType.CriticalHitRate]);
                         }
                     }
                 }

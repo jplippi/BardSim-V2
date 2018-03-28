@@ -17,9 +17,13 @@ namespace BardSimV2
             {
                 {Keys.Num1, false },
                 {Keys.Num2, false },
+                {Keys.Num3, false },
+                {Keys.Num4, false },
+                {Keys.Num5, false },
+                {Keys.Num6, false },
+                {Keys.F2, false },
                 {Keys.F3, false },
                 {Keys.R, false },
-                {Keys.Num6, false },
                 {Keys.T, false }
             };
         }

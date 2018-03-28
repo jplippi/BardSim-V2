@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    enum Jobs
+    enum Job
     {
         Paladin,
         Warrior,

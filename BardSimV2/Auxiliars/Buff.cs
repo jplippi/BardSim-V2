@@ -13,7 +13,7 @@ namespace BardSimV2
         private StatusName name;
         private AttributeType type;
         private decimal duration;
-        private ulong start;
+        private decimal start;
         private decimal modifier;
         private bool isActive;
 
@@ -23,10 +23,10 @@ namespace BardSimV2
         public AttributeType Type { get => type; }
         public decimal Duration { get => duration; }
         public decimal Modifier { get => modifier; }
-        public ulong Start { get => start; set => start = value; }
+        public decimal Start { get => start; set => start = value; }
         public bool IsActive { get => isActive; set => isActive = value; }
 
-        public Buff(Entity buffTarget, Entity userSource, StatusName name, AttributeType type, decimal duration, ulong start, decimal modifier, bool isActive)
+        public Buff(Entity buffTarget, Entity userSource, StatusName name, AttributeType type, decimal duration, decimal start, decimal modifier, bool isActive)
         {
             this.buffTarget = buffTarget;
             this.userSource = userSource;

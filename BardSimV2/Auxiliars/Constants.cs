@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    interface ISystem
+    static class Constants
     {
-        void Update(decimal timer, Keyboard keyboard);
+        private static decimal animationLock = 0.6m;
+
+        public static decimal AnimationLock { get => animationLock; }
     }
 }

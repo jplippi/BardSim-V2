@@ -45,12 +45,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnimationLockComponent.cs" />
+    <Compile Include="Components\GenericStatusEffectComponent.cs" />
+    <Compile Include="Components\UseConditionComponent.cs" />
+    <Compile Include="Auxiliars\ConditinalFunctions.cs" />
     <Compile Include="Auxiliars\DoT.cs" />
+    <Compile Include="Auxiliars\Enabler.cs" />
+    <Compile Include="Components\StraighterShotEffectComponent.cs" />
+    <Compile Include="Enumerations\Song.cs" />
     <Compile Include="Components\DotEffectComponent.cs" />
     <Compile Include="Enumerations\DotName.cs" />
     <Compile Include="Enumerations\DamageModifierType.cs" />
     <Compile Include="Enumerations\StatusName.cs" />
     <Compile Include="Enumerations\ActorType.cs" />
+    <Compile Include="Components\IronJawsEffectComponent.cs" />
+    <Compile Include="Auxiliars\Constants.cs" />
     <Compile Include="Systems\OverTimeSystem.cs" />
     <Compile Include="Systems\BuffSystem.cs" />
     <Compile Include="Systems\AIDebugSystem.cs" />
@@ -60,11 +69,11 @@
     <Compile Include="Auxiliars\Buff.cs" />
     <Compile Include="Components\ModifierStateComponent.cs" />
     <Compile Include="Auxiliars\CombatFormulas.cs" />
-    <Compile Include="Auxiliars\Cooldown.cs" />
+    <Compile Include="Components\CooldownComponent.cs" />
     <Compile Include="Auxiliars\ExtensionMethods.cs" />
     <Compile Include="Components\HealthComponent.cs" />
-    <Compile Include="Components\JobComponent.cs" />
-    <Compile Include="Enumerations\Jobs.cs" />
+    <Compile Include="Components\BardComponent.cs" />
+    <Compile Include="Enumerations\Job.cs" />
     <Compile Include="Enumerations\Keys.cs" />
     <Compile Include="Systems\KeystrokeListenerSystem.cs" />
     <Compile Include="Auxiliars\KeyBind.cs" />
