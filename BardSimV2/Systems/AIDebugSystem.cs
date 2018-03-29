@@ -73,7 +73,7 @@ namespace BardSimV2
 
         public void Update(decimal timer, Keyboard keyboard)
         {
-            if(!(timer <= NextGCD(heavyShotCdComp) - Constants.AnimationLock) || NextGCD(heavyShotCdComp) <= 0m)
+               if (!(timer <= NextGCD(heavyShotCdComp) - Constants.AnimationLock) || NextGCD(heavyShotCdComp) <= 0m)
             {
                 if (targOtComp.DotList.Find(x => x.Name == DotName.StormBite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null)
                 {
@@ -83,7 +83,7 @@ namespace BardSimV2
                 {
                     UseKey(keyboard, Keys.F3);
                 }
-                else if (modStateComponent.BuffList.Find(x => x.IsActive && x.Name == StatusName.StraighterShot) == null)
+                else if (modStateComponent.BuffList.Find(x => x.IsActive && x.Name == StatusName.StraightShot) == null)
                 {
                     UseKey(keyboard, Keys.Num2);
                 }
@@ -114,7 +114,7 @@ namespace BardSimV2
                 {
                     UseKey(keyboard, Keys.M3);
                 }
-                else if ((brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire == 3 && ppCooldownComp.UsableAt <= timer)||(brdComp.Song == SongName.TheWanderersMinuet && timer - wmCooldownComp.Start >= 28m && ppCooldownComp.UsableAt <= timer))
+                else if ((brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire == 3 && ppCooldownComp.UsableAt <= timer) || (brdComp.Song == SongName.TheWanderersMinuet && timer - wmCooldownComp.Start >= 28m && ppCooldownComp.UsableAt <= timer))
                 {
                     UseKey(keyboard, Keys.T);
                 }
@@ -122,7 +122,7 @@ namespace BardSimV2
                 {
                     UseKey(keyboard, Keys.R);
                 }
-                else if(rsCooldownComp.UsableAt <= timer)
+                else if (rsCooldownComp.UsableAt <= timer)
                 {
                     UseKey(keyboard, Keys.F1);
                 }
@@ -134,46 +134,16 @@ namespace BardSimV2
                 else if (modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && barrageCooldownComp.UsableAt <= timer && !(targOtComp.DotList.Find(x => x.Name == DotName.StormBite && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.Duration - timer + x.Start < 4m) != null))
                 {
                     UseKey(keyboard, Keys.F2);
-                }else if (!(modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && modStateComponent.EnablerList.Find(x => x.Name == StatusName.Barrage) != null) && eaCooldownComp.UsableAt <= timer)
+                }
+                else if (!(modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && modStateComponent.EnablerList.Find(x => x.Name == StatusName.Barrage) != null) && eaCooldownComp.UsableAt <= timer)
                 {
                     UseKey(keyboard, Keys.Num6);
-                }else if ((targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.StormBite && x.UserSource == player) != null && targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.CausticBite && x.UserSource == player) != null) && swCooldownComp.UsableAt <= timer)
+                }
+                else if ((targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.StormBite && x.UserSource == player) != null && targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.CausticBite && x.UserSource == player) != null) && swCooldownComp.UsableAt <= timer)
                 {
                     UseKey(keyboard, Keys.Num7);
                 }
             }
-
-
-
-
-            //if(targOtComp.DotList.Find(x => x.Name == DotName.StormBite && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.Duration - timer + x.Start < 4m) != null)
-            //{
-            //    UseKey(keyboard, Keys.Num5);
-            //}
-            //else if(modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && barrageCooldownComp.UsableAt <= timer)
-            //{
-            //    UseKey(keyboard, Keys.F2);
-            //}
-            //else if(modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null)
-            //{
-            //    UseKey(keyboard, Keys.F3);
-            //}
-            //else if(modStateComponent.BuffList.Find(x => x.IsActive && x.Name == StatusName.StraighterShot) == null)
-            //{
-            //    UseKey(keyboard, Keys.Num2);
-            //}
-            //else if(targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.StormBite) == null)
-            //{
-            //    UseKey(keyboard, Keys.Num3);
-            //}
-            //else if(targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.CausticBite) == null)
-            //{
-            //    UseKey(keyboard, Keys.Num4);
-            //}
-            //else
-            //{
-            //    UseKey(keyboard, Keys.Num1);
-            //}
         }
 
         void UseKey(Keyboard keyboard, Keys key)
