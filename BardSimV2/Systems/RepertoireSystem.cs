@@ -39,7 +39,10 @@ namespace BardSimV2
 
                                 if(cdComp != null)
                                 {
-                                    cdComp.UsableAt = timer + Constants.CooldownResetLock;
+                                    if(cdComp.UsableAt >= timer + Constants.CooldownResetLock)
+                                    {
+                                        cdComp.UsableAt = timer + Constants.CooldownResetLock;
+                                    }
                                 }
 
                             }

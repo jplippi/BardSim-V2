@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\ConditionalPotencyComponent.cs" />
+    <Compile Include="Components\UsesEnablerComponent.cs" />
+    <Compile Include="Components\UsesRepertoireComponent.cs" />
     <Compile Include="Components\AnimationLockComponent.cs" />
     <Compile Include="Components\EnhancedEmpyrealArrowComponent.cs" />
     <Compile Include="Components\SongComponent.cs" />

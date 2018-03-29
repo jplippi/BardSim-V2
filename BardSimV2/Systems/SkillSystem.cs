@@ -13,6 +13,7 @@ namespace BardSimV2
         List<AnimationLockComponent> animationLockComponents;
         List<AttributesComponent> attributesComponents;
         List<BardComponent> bardComponents;
+        List<ConditionalPotencyComponent> conditionalPotencyComponents;
         List<CooldownComponent> cooldownComponents;
         List<DotEffectComponent> dotEffectComponents;
         List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents;
@@ -29,31 +30,36 @@ namespace BardSimV2
         List<StraighterShotEffectComponent> straighterShotEffectComponents;
         List<TargetComponent> targetComponents;
         List<UseConditionComponent> useConditionComponents;
+        List<UsesEnablerComponent> usesEnablerComponents;
+        List<UsesRepertoireComponent> usesRepertoireComponents;
 
         Random rng;
 
 
-        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<KeyMappingComponent> keyMappingComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents)
+        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<ConditionalPotencyComponent> conditionalPotencyComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<KeyMappingComponent> keyMappingComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents, List<UsesEnablerComponent> usesEnablerComponents, List<UsesRepertoireComponent> usesRepertoireComponents)
         {
             this.animationLockComponents = animationLockComponents;
             this.attributesComponents = attributesComponents;
             this.bardComponents = bardComponents;
-            this.modifierStateComponents = modifierStateComponents;
+            this.conditionalPotencyComponents = conditionalPotencyComponents;
+            this.cooldownComponents = cooldownComponents;
             this.dotEffectComponents = dotEffectComponents;
             this.enhancedEmpyrealArrowComponents = enhancedEmpyrealArrowComponents;
             this.genericStatusEffectComponents = genericStatusEffectComponents;
             this.healthComponents = healthComponents;
             this.ironJawsEffectComponents = ironJawsEffectComponents;
             this.keyMappingComponents = keyMappingComponents;
+            this.modifierStateComponents = modifierStateComponents;
             this.overtimeStateComponents = overtimeStateComponents;
             this.potencyComponents = potencyComponents;
-            this.cooldownComponents = cooldownComponents;
             this.skillBaseComponents = skillBaseComponents;
             this.songComponents = songComponents;
             this.statusEffectComponents = statusEffectComponents;
             this.straighterShotEffectComponents = straighterShotEffectComponents;
             this.targetComponents = targetComponents;
             this.useConditionComponents = useConditionComponents;
+            this.usesEnablerComponents = usesEnablerComponents;
+            this.usesRepertoireComponents = usesRepertoireComponents;
             rng = new Random();
         }
 
@@ -94,6 +100,7 @@ namespace BardSimV2
 
                             // More skill components
                             PotencyComponent potComp = potencyComponents.Find(x => x.Parent == skill);
+                            ConditionalPotencyComponent condPotComp = conditionalPotencyComponents.Find(x => x.Parent == skill);
                             CooldownComponent cdComp = cooldownComponents.Find(x => x.Parent == skill);
 
                             if (keyBind.IsActive)
@@ -117,7 +124,7 @@ namespace BardSimV2
                                     {
                                         //DEBUG: debug string
                                         string isGCD = "  ";
-                                        if(skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.RefulgentArrow)
+                                        if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.IronJaws)
                                         {
                                             isGCD = "\n";
                                         }
@@ -237,7 +244,7 @@ namespace BardSimV2
                                             };
 
                                         // If the skill is offensive
-                                        if (potComp != null)
+                                        if (potComp != null || condPotComp != null)
                                         {
                                             //DEBUG: debug strings
                                             string critical1 = " Critical! ";
@@ -254,9 +261,20 @@ namespace BardSimV2
                                             decimal totalDamage3 = 0;
 
                                             decimal potMod = 1;
+                                            int potency = 0;
+
+                                            // Determining potency:
+                                            if(potComp != null)
+                                            {
+                                                potency = potComp.Amount;
+                                            }
+                                            else if(condPotComp != null)
+                                            {
+                                                potency = condPotComp.Function(entity, targOtComp, brdComp);
+                                            }
 
                                             // Starts calculating potency modifier from base potency
-                                            potMod = CombatFormulas.PotencyMod(potComp.Amount);
+                                            potMod = CombatFormulas.PotencyMod(potency);
 
                                             // If not critical hit, modifier is 1
                                             if ((int)(critChance * 10) < rng.Next(1, 1000))
@@ -283,7 +301,7 @@ namespace BardSimV2
                                             {
                                                 if (b.Type == AttributeType.Damage)
                                                 {
-                                                    damageMods = $"{damageMods}+{(b.Modifier-1)*100}% ";
+                                                    damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
                                                 }
                                             }
 
@@ -412,22 +430,23 @@ namespace BardSimV2
                                         }
 
                                         // Logic for buff effects
-                                        foreach(StatusEffectComponent statusComp in statusEffectComponents.FindAll(x => x.Parent == skill))
+                                        foreach (StatusEffectComponent statusComp in statusEffectComponents.FindAll(x => x.Parent == skill))
                                         {
                                             Buff b = modStateComp.BuffList.Find(x => x.UserSource == entity && x.Name == statusComp.Name);
 
                                             // If there's already the same buff applied, refresh the timer
-                                            if(b != null)
+                                            if (b != null)
                                             {
                                                 b.Start = timer;
                                             }
                                             // Otherwise, adds the buff
                                             else
                                             {
-                                                if(statusComp.Actor == ActorType.Self)
+                                                if (statusComp.Actor == ActorType.Self)
                                                 {
                                                     modStateComp.BuffList.Add(new Buff(entity, entity, statusComp.Name, statusComp.Type, statusComp.Duration, timer, statusComp.Modifier, false));
-                                                }else if(statusComp.Actor == ActorType.Target)
+                                                }
+                                                else if (statusComp.Actor == ActorType.Target)
                                                 {
                                                     modStateComp.BuffList.Add(new Buff(targComp.Target, entity, statusComp.Name, statusComp.Type, statusComp.Duration, timer, statusComp.Modifier, false));
                                                 }
@@ -435,7 +454,7 @@ namespace BardSimV2
                                         }
 
                                         // Logic for generic buff effects
-                                        foreach(GenericStatusEffectComponent genStatusComp in genericStatusEffectComponents.FindAll(x => x.Parent == skill))
+                                        foreach (GenericStatusEffectComponent genStatusComp in genericStatusEffectComponents.FindAll(x => x.Parent == skill))
                                         {
                                             Enabler e = modStateComp.EnablerList.Find(x => x.User == entity && x.Name == genStatusComp.Name);
 
@@ -457,7 +476,7 @@ namespace BardSimV2
                                             DoT d = targOtComp.DotList.Find(x => x.UserSource == entity && x.Name == dotEffectComp.Name);
 
                                             // If there's already the same DoT applied, reapplies it
-                                            if(d != null)
+                                            if (d != null)
                                             {
                                                 d = new DoT(targComp.Target, entity, modifiersDictionary, chancesDictionary, modStateComp.BuffList, dotEffectComp.Name, dotEffectComp.Potency, dotEffectComp.Duration, timer, true);
                                             }
@@ -472,12 +491,12 @@ namespace BardSimV2
                                         foreach (StraighterShotEffectComponent ssEffectComp in straighterShotEffectComponents.FindAll(x => x.Parent == skill))
                                         {
                                             // Effect is granted with a chance
-                                            if((int)(ssEffectComp.Probability * 10) > rng.Next(0, 1000))
+                                            if ((int)(ssEffectComp.Probability * 10) > rng.Next(0, 1000))
                                             {
                                                 Enabler e = modStateComp.EnablerList.Find(x => x.User == entity && x.Name == ssEffectComp.Name);
 
                                                 // If there's already the same enabler applied, refresh the timer
-                                                if(e != null)
+                                                if (e != null)
                                                 {
                                                     e.Start = timer;
                                                 }
@@ -505,7 +524,7 @@ namespace BardSimV2
                                         }
 
                                         // Logic for song effects
-                                        foreach(SongComponent songComp in songComponents.FindAll(x => x.Parent == skill))
+                                        foreach (SongComponent songComp in songComponents.FindAll(x => x.Parent == skill))
                                         {
                                             // Logic for ending AP buff
                                             Buff apEffect = null;
@@ -532,19 +551,19 @@ namespace BardSimV2
                                         }
 
                                         // Logic for enhanced empyreal arrow effects
-                                        foreach(EnhancedEmpyrealArrowComponent eaComp in enhancedEmpyrealArrowComponents)
+                                        foreach (EnhancedEmpyrealArrowComponent eaComp in enhancedEmpyrealArrowComponents)
                                         {
                                             if (eaComp.Parent == skill && brdComp.Song != SongName.None)
                                             {
-                                                if(brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire < 3)
+                                                if (brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire < 3)
                                                 {
                                                     brdComp.Repertoire++;
                                                 }
-                                                else if(brdComp.Song == SongName.MagesBallad)
+                                                else if (brdComp.Song == SongName.MagesBallad)
                                                 {
                                                     brdComp.Repertoire++;
                                                 }
-                                                else if(brdComp.Song == SongName.ArmysPaeon && brdComp.Repertoire < 4)
+                                                else if (brdComp.Song == SongName.ArmysPaeon && brdComp.Repertoire < 4)
                                                 {
                                                     brdComp.Repertoire++;
                                                 }
@@ -554,6 +573,22 @@ namespace BardSimV2
                                             }
                                         }
 
+                                        // Logic for consuming repertoire
+                                        foreach (UsesRepertoireComponent repComp in usesRepertoireComponents.FindAll(x => x.Parent == skill))
+                                        {
+                                            brdComp.Repertoire = 0;
+                                        }
+
+                                        // Logic for consuming enabler
+                                        foreach (UsesEnablerComponent enComp in usesEnablerComponents.FindAll(x => x.Parent == skill))
+                                        {
+                                            Enabler e = modStateComp.EnablerList.Find(x => x.Name == enComp.Name);
+
+                                            if (e != null)
+                                            {
+                                                modStateComp.EnablerList.Remove(e);
+                                            }
+                                        }
                                     }
                                 }
                             }

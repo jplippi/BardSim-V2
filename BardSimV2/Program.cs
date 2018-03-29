@@ -35,6 +35,7 @@ namespace BardSimV2
             Entity bloodletter = new Entity();
             Entity empyrealArrow = new Entity();
             Entity pitchPerfect = new Entity();
+            Entity sidewinder = new Entity();
             Entity ragingStrikes = new Entity();
             Entity barrage = new Entity();
             Entity theWanderersMinuet = new Entity();
@@ -107,7 +108,8 @@ namespace BardSimV2
                     new SkillBaseComponent(refulgentArrow, SkillName.RefulgentArrow, SkillType.Weaponskill),
                     new CooldownComponent(refulgentArrow, 2.5m, gcdSkillList),
                     new PotencyComponent(refulgentArrow, 300),
-                    new UseConditionComponent(refulgentArrow, ConditionalFunctions.RefulgentArrow)
+                    new UseConditionComponent(refulgentArrow, ConditionalFunctions.IsRefulgentArrowUsable),
+                    new UsesEnablerComponent(refulgentArrow, StatusName.StraighterShot)
                 });
 
             bloodletter.AddComponents(new List<Component>
@@ -129,9 +131,16 @@ namespace BardSimV2
                 {
                     new SkillBaseComponent(pitchPerfect, SkillName.PitchPerfect, SkillType.Ability),
                     new CooldownComponent(pitchPerfect, 3m),
-                    new PotencyComponent(pitchPerfect, 100)
-                    // TODO: Add special potency component
-                    // TODO: Add special condition component
+                    new ConditionalPotencyComponent(pitchPerfect, ConditionalFunctions.PitchPerfectPotency),
+                    new UseConditionComponent(pitchPerfect, ConditionalFunctions.IsPitchPerfectUsable),
+                    new UsesRepertoireComponent(pitchPerfect)
+                });
+
+            sidewinder.AddComponents(new List<Component>
+                {
+                    new SkillBaseComponent(sidewinder, SkillName.Sidewinder, SkillType.Ability),
+                    new CooldownComponent(sidewinder, 60m),
+                    new ConditionalPotencyComponent(sidewinder, ConditionalFunctions.SidewinderPotency)
                 });
 
             ragingStrikes.AddComponents(new List<Component>
@@ -187,6 +196,7 @@ namespace BardSimV2
                         bloodletter,
                         empyrealArrow,
                         pitchPerfect,
+                        sidewinder,
                         ragingStrikes,
                         barrage,
                         theWanderersMinuet,
@@ -208,6 +218,7 @@ namespace BardSimV2
                         new KeyBind(SkillName.Bloodletter, Keys.R),
                         new KeyBind(SkillName.EmpyrealArrow, Keys.Num6),
                         new KeyBind(SkillName.PitchPerfect, Keys.T),
+                        new KeyBind(SkillName.Sidewinder, Keys.Num7),
                         new KeyBind(SkillName.RagingStrikes, Keys.F1),
                         new KeyBind(SkillName.Barrage, Keys.F2),
                         new KeyBind(SkillName.TheWanderersMinuet, Keys.M1),
@@ -237,6 +248,7 @@ namespace BardSimV2
             _entities.Add(bloodletter);
             _entities.Add(empyrealArrow);
             _entities.Add(pitchPerfect);
+            _entities.Add(sidewinder);
             _entities.Add(ragingStrikes);
             _entities.Add(barrage);
             _entities.Add(theWanderersMinuet);
@@ -247,6 +259,7 @@ namespace BardSimV2
             List<AnimationLockComponent> animationLockComponents = new List<AnimationLockComponent>();
             List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
             List<BardComponent> bardComponents = new List<BardComponent>();
+            List<ConditionalPotencyComponent> conditionalPotencyComponents = new List<ConditionalPotencyComponent>();
             List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
             List<DotEffectComponent> dotEffectComponents = new List<DotEffectComponent>();
             List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents = new List<EnhancedEmpyrealArrowComponent>();
@@ -264,6 +277,8 @@ namespace BardSimV2
             List<StraighterShotEffectComponent> straighterShotEffectComponents = new List<StraighterShotEffectComponent>();
             List<TargetComponent> targetComponents = new List<TargetComponent>();
             List<UseConditionComponent> useConditionComponents = new List<UseConditionComponent>();
+            List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
+            List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
 
             foreach (Entity e in _entities)
             {
@@ -280,6 +295,10 @@ namespace BardSimV2
                     else if (c is BardComponent)
                     {
                         bardComponents.Add((BardComponent)c);
+                    }
+                    else if (c is ConditionalPotencyComponent)
+                    {
+                        conditionalPotencyComponents.Add((ConditionalPotencyComponent)c);
                     }
                     else if (c is CooldownComponent)
                     {
@@ -349,6 +368,14 @@ namespace BardSimV2
                     {
                         useConditionComponents.Add((UseConditionComponent)c);
                     }
+                    else if (c is UsesEnablerComponent)
+                    {
+                        usesEnablerComponents.Add((UsesEnablerComponent)c);
+                    }
+                    else if (c is UsesRepertoireComponent)
+                    {
+                        usesRepertoireComponents.Add((UsesRepertoireComponent)c);
+                    }
                 }
             }
 
@@ -358,7 +385,7 @@ namespace BardSimV2
             _systems.Add(new OverTimeSystem(bardComponents, cooldownComponents, healthComponents, modifierStateComponents, overtimeStateComponents, riverOfBloodComponents));
             _systems.Add(new RepertoireSystem(bardComponents, cooldownComponents, modifierStateComponents, riverOfBloodComponents));
             _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
-            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents));
+            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
 
             // Asks for run mode and duration
             bool invalidMode = true;
@@ -391,9 +418,9 @@ namespace BardSimV2
                         };
 
                     }
-
+                    realTimer.Stop();
                     //DEBUG: Total damage
-                    Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1}", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds());
+                    Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
 
                 }
                 else if(mode == 'F')
@@ -413,16 +440,16 @@ namespace BardSimV2
                     }
 
                     //DEBUG: Total damage
-                    Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer);
-
-                }
-
-                while (true)
-                {
+                    Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
 
                 }
 
             }
+            while (true)
+            {
+
+            }
+
         }
     }
 }

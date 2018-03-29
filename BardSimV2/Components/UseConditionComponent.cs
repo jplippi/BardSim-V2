@@ -14,7 +14,7 @@ namespace BardSimV2
 
         public UseConditionComponent(Entity parent, Func<ModifierStateComponent, Component, bool> function) : base(parent)
         {
-            this.function = ConditionalFunctions.RefulgentArrow;
+            this.function = function;
         }
     }
 }

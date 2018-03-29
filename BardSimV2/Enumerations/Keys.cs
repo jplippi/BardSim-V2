@@ -14,6 +14,7 @@ namespace BardSimV2
         Num4,
         Num5,
         Num6,
+        Num7,
         F1,
         F2,
         F3,
