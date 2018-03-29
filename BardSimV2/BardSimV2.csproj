@@ -66,6 +66,8 @@
     <Compile Include="Components\IronJawsEffectComponent.cs" />
     <Compile Include="Auxiliars\Constants.cs" />
     <Compile Include="Components\RiverOfBloodComponent.cs" />
+    <Compile Include="Components\AutoAttackComponent.cs" />
+    <Compile Include="Systems\AutoAttackSystem.cs" />
     <Compile Include="Systems\RepertoireSystem.cs" />
     <Compile Include="Systems\OverTimeSystem.cs" />
     <Compile Include="Systems\BuffSystem.cs" />

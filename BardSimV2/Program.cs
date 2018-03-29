@@ -206,6 +206,7 @@ namespace BardSimV2
                     new AttributesComponent(player, 261, 2830, 2276, 249, 236, 2315, 1153, 1677, 801, 364, 364, 292, 105, 3.04m),
                     new ModifierStateComponent(player),
                     new AnimationLockComponent(player),
+                    new AutoAttackComponent(player, 100),
                     new RiverOfBloodComponent(player, riverOfBloodSkillList),
                     new KeyMappingComponent(player, new List<KeyBind>
                     {
@@ -258,6 +259,7 @@ namespace BardSimV2
             // Making component lists
             List<AnimationLockComponent> animationLockComponents = new List<AnimationLockComponent>();
             List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
+            List<AutoAttackComponent> autoAttackComponents = new List<AutoAttackComponent>();
             List<BardComponent> bardComponents = new List<BardComponent>();
             List<ConditionalPotencyComponent> conditionalPotencyComponents = new List<ConditionalPotencyComponent>();
             List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
@@ -291,6 +293,10 @@ namespace BardSimV2
                     else if (c is AttributesComponent)
                     {
                         attributesComponents.Add((AttributesComponent)c);
+                    }
+                    else if (c is AutoAttackComponent)
+                    {
+                        autoAttackComponents.Add((AutoAttackComponent)c);
                     }
                     else if (c is BardComponent)
                     {
@@ -385,6 +391,7 @@ namespace BardSimV2
             _systems.Add(new OverTimeSystem(bardComponents, cooldownComponents, healthComponents, modifierStateComponents, overtimeStateComponents, riverOfBloodComponents));
             _systems.Add(new RepertoireSystem(bardComponents, cooldownComponents, modifierStateComponents, riverOfBloodComponents));
             _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
+            _systems.Add(new AutoAttackSystem(attributesComponents, autoAttackComponents, bardComponents, healthComponents, modifierStateComponents, targetComponents));
             _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
 
             // Asks for run mode and duration
