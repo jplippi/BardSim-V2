@@ -45,14 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnimationLockComponent.cs" />
+    <Compile Include="Components\AnimationLockComponent.cs" />
+    <Compile Include="Components\EnhancedEmpyrealArrowComponent.cs" />
+    <Compile Include="Components\SongComponent.cs" />
     <Compile Include="Components\GenericStatusEffectComponent.cs" />
     <Compile Include="Components\UseConditionComponent.cs" />
     <Compile Include="Auxiliars\ConditinalFunctions.cs" />
     <Compile Include="Auxiliars\DoT.cs" />
     <Compile Include="Auxiliars\Enabler.cs" />
     <Compile Include="Components\StraighterShotEffectComponent.cs" />
-    <Compile Include="Enumerations\Song.cs" />
+    <Compile Include="Enumerations\SongName.cs" />
     <Compile Include="Components\DotEffectComponent.cs" />
     <Compile Include="Enumerations\DotName.cs" />
     <Compile Include="Enumerations\DamageModifierType.cs" />
@@ -60,6 +62,8 @@
     <Compile Include="Enumerations\ActorType.cs" />
     <Compile Include="Components\IronJawsEffectComponent.cs" />
     <Compile Include="Auxiliars\Constants.cs" />
+    <Compile Include="Components\RiverOfBloodComponent.cs" />
+    <Compile Include="Systems\RepertoireSystem.cs" />
     <Compile Include="Systems\OverTimeSystem.cs" />
     <Compile Include="Systems\BuffSystem.cs" />
     <Compile Include="Systems\AIDebugSystem.cs" />

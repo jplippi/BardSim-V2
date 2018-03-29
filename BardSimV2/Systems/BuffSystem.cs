@@ -9,12 +9,15 @@ namespace BardSimV2
 {
     class BuffSystem : ISystem
     {
+        List<BardComponent> bardComponents;
         List<ModifierStateComponent> modifierStateComponents;
+
         List<Buff> buffToBeRemoved = new List<Buff>();
         List<Enabler> enablerToBeRemoved = new List<Enabler>();
 
-        public BuffSystem(List<ModifierStateComponent> modifierStateComponents)
+        public BuffSystem(List<BardComponent> bardComponents, List<ModifierStateComponent> modifierStateComponents)
         {
+            this.bardComponents = bardComponents;
             this.modifierStateComponents = modifierStateComponents;
         }
 
@@ -65,6 +68,37 @@ namespace BardSimV2
                     modStateComp.EnablerList.Remove(enabler);
                 }
 
+            }
+
+            foreach (BardComponent brdComp in bardComponents)
+            {
+                if(brdComp.Song != SongName.None)
+                {
+                    if(brdComp.SongStart + brdComp.SongDuration <= timer)
+                    {
+
+                        // Logic for ending AP buff
+                        Buff apEffect = null;
+                        ModifierStateComponent brdModComp = modifierStateComponents.Find(x => x.Parent == brdComp.Parent);
+
+                        if(brdModComp != null)
+                        {
+                            apEffect = brdModComp.BuffList.Find(x => x.Name == StatusName.ArmysPaeon);
+                        }
+
+                        if(apEffect != null)
+                        {
+                            brdModComp.BuffDictionary[apEffect.Type] -= apEffect.Modifier;
+                            brdModComp.BuffList.Remove(apEffect);
+                        }
+                        
+                        // Resetting song
+                        brdComp.Song = SongName.None;
+                        brdComp.SongStart = 0;
+                        brdComp.SongDuration = 0;
+                        brdComp.Repertoire = 0;
+                    }
+                }
             }
         }
     }

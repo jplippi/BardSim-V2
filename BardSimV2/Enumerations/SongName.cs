@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    enum Song
+    enum SongName
     {
         None,
-        WanderersMinuet,
+        TheWanderersMinuet,
         MagesBallad,
         ArmysPaeon
     }

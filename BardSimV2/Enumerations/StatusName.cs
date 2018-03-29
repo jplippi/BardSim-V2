@@ -11,6 +11,7 @@ namespace BardSimV2
         StraightShot,
         StraighterShot,
         RagingStrikes,
-        Barrage
+        Barrage,
+        ArmysPaeon
     }
 }
