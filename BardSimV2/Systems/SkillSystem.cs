@@ -63,7 +63,7 @@ namespace BardSimV2
             rng = new Random();
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
         {
             foreach ( KeyMappingComponent keyMapComp in keyMappingComponents)
             {
@@ -122,11 +122,13 @@ namespace BardSimV2
 
                                     if (isUsable)
                                     {
-                                        //DEBUG: debug string
                                         string isGCD = "  ";
+
+                                        //DEBUG: debug string
                                         if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.IronJaws)
                                         {
-                                            isGCD = "\n";
+                                            Console.WriteLine("\n");
+                                            isGCD = "";
                                         }
 
                                         //DEBUG: debug flag
@@ -551,9 +553,9 @@ namespace BardSimV2
                                         }
 
                                         // Logic for enhanced empyreal arrow effects
-                                        foreach (EnhancedEmpyrealArrowComponent eaComp in enhancedEmpyrealArrowComponents)
+                                        foreach (EnhancedEmpyrealArrowComponent eaComp in enhancedEmpyrealArrowComponents.FindAll(x => x.Parent == skill))
                                         {
-                                            if (eaComp.Parent == skill && brdComp.Song != SongName.None)
+                                            if (brdComp.Song != SongName.None)
                                             {
                                                 if (brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire < 3)
                                                 {

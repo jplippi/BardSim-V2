@@ -71,7 +71,7 @@ namespace BardSimV2
 
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
         {
                if (!(timer <= NextGCD(heavyShotCdComp) - Constants.AnimationLock) || NextGCD(heavyShotCdComp) <= 0m)
             {

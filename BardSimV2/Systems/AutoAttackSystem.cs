@@ -28,7 +28,7 @@ namespace BardSimV2
         }
 
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
         {
             foreach (AutoAttackComponent aaComp in autoAttackComponents)
             {

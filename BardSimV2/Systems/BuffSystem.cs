@@ -21,7 +21,7 @@ namespace BardSimV2
             this.modifierStateComponents = modifierStateComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
         {
             foreach (ModifierStateComponent modStateComp in modifierStateComponents)
             {
