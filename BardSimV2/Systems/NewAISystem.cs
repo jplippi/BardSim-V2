@@ -117,7 +117,7 @@ namespace BardSimV2
                 }
                 else if (timer < NextGCD(heavyShotCdComp))
                 {
-                    // oGCD: Base structure
+                    // oGCD: opener
                     switch (gcdCounter)
                     {
                         case 1:
