@@ -28,7 +28,7 @@ namespace BardSimV2
         }
 
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, bool verbose)
         {
             foreach (AutoAttackComponent aaComp in autoAttackComponents)
             {
@@ -143,16 +143,19 @@ namespace BardSimV2
                     // Sets next auto
                     aaComp.NextAuto += attComp.AttributesDictionary[AttributeType.WeaponDelay];
 
-                    //DEBUG: Listing damage mods
-                    foreach (Buff b in modStateComp.BuffList)
+                    if (verbose)
                     {
-                        if (b.Type == AttributeType.Damage)
+                        //DEBUG: Listing damage mods
+                        foreach (Buff b in modStateComp.BuffList)
                         {
-                            damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
+                            if (b.Type == AttributeType.Damage)
+                            {
+                                damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
+                            }
                         }
-                    }
 
-                    Console.WriteLine("       [{0:00.00}]{2}{3}Auto attacked for {1} damage. (Crit Chance: {4}, Damage buffs: {5})", timer, totalDamage, critical, direct, critChance, damageMods);
+                        Console.WriteLine("       [{0:00.00}]{2}{3}Auto attacked for {1} damage. (Crit Chance: {4}, Damage buffs: {5})", timer, totalDamage, critical, direct, critChance, damageMods);
+                    }
 
                 }
             }

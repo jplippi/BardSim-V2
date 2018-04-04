@@ -30,7 +30,7 @@ namespace BardSimV2
             this.riverOfBloodComponents = riverOfBloodComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, bool verbose)
         {
             foreach (OverTimeStateComponent otStateComp in overtimeStateComponents)
             {
@@ -122,18 +122,21 @@ namespace BardSimV2
 
                             }
 
-                            //DEBUG: Listing damage mods
-                            string damageMods = "";
-                            foreach (Buff b in dot.UsersBuffList)
+                            if (verbose)
                             {
-                                if (b.Type == AttributeType.Damage)
+                                //DEBUG: Listing damage mods
+                                string damageMods = "";
+                                foreach (Buff b in dot.UsersBuffList)
                                 {
-                                    damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
+                                    if (b.Type == AttributeType.Damage)
+                                    {
+                                        damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
+                                    }
                                 }
-                            }
 
-                            //DEBUG: Console log
-                            Console.WriteLine("    [{0:00.00}]{3}{4}{1} ticked for {2} damage. (Crit Chance: {5}, Repertoire: {6}, Damage buffs: {7})", timer, dot.Name.ToString(), dotTick, critical, direct, dot.UsersChancesDictionary[AttributeType.CriticalHitRate], bardComponents.Find(x => x.Parent == dot.UserSource).Repertoire, damageMods);
+                                //DEBUG: Console log
+                                Console.WriteLine("    [{0:00.00}]{3}{4}{1} ticked for {2} damage. (Crit Chance: {5}, Repertoire: {6}, Damage buffs: {7})", timer, dot.Name.ToString(), dotTick, critical, direct, dot.UsersChancesDictionary[AttributeType.CriticalHitRate], bardComponents.Find(x => x.Parent == dot.UserSource).Repertoire, damageMods);
+                            }
                         }
                     }
                 }

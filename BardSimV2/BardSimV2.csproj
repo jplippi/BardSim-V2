@@ -57,6 +57,7 @@
     <Compile Include="Auxiliars\DoT.cs" />
     <Compile Include="Auxiliars\Enabler.cs" />
     <Compile Include="Components\StraighterShotEffectComponent.cs" />
+    <Compile Include="Engine.cs" />
     <Compile Include="Enumerations\SongName.cs" />
     <Compile Include="Components\DotEffectComponent.cs" />
     <Compile Include="Enumerations\DotName.cs" />
@@ -67,6 +68,8 @@
     <Compile Include="Auxiliars\Constants.cs" />
     <Compile Include="Components\RiverOfBloodComponent.cs" />
     <Compile Include="Components\AutoAttackComponent.cs" />
+    <Compile Include="SimulationParameters.cs" />
+    <Compile Include="SimulationType.cs" />
     <Compile Include="Systems\AutoAttackSystem.cs" />
     <Compile Include="Systems\NewAISystem.cs" />
     <Compile Include="Systems\RepertoireSystem.cs" />

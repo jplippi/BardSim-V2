@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ExtensionMethods;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +10,8 @@ namespace BardSimV2
 {
     class Engine
     {
-        List<ISystem> _systems = new List<ISystem>();
-        List<Entity> _entities = new List<Entity>();
+        List<ISystem> _systems;
+        List<Entity> _entities;
 
         // Sets up a keyboard to watch for inputs
         Keyboard keyboard = new Keyboard();
@@ -21,45 +23,101 @@ namespace BardSimV2
         Entity enemy = new Entity();
 
         // Initializing skill entities
-        Entity heavyShot = new Entity();
-        Entity straightShot = new Entity();
-        Entity causticBite = new Entity();
-        Entity stormBite = new Entity();
-        Entity ironJaws = new Entity();
-        Entity refulgentArrow = new Entity();
-        Entity bloodletter = new Entity();
-        Entity empyrealArrow = new Entity();
-        Entity pitchPerfect = new Entity();
-        Entity sidewinder = new Entity();
-        Entity ragingStrikes = new Entity();
-        Entity barrage = new Entity();
-        Entity theWanderersMinuet = new Entity();
-        Entity magesBallad = new Entity();
-        Entity armysPaeon = new Entity();
+        Entity heavyShot;
+        Entity straightShot;
+        Entity causticBite;
+        Entity stormBite;
+        Entity ironJaws;
+        Entity refulgentArrow;
+        Entity bloodletter;
+        Entity empyrealArrow;
+        Entity pitchPerfect;
+        Entity sidewinder;
+        Entity ragingStrikes;
+        Entity barrage;
+        Entity theWanderersMinuet;
+        Entity magesBallad;
+        Entity armysPaeon;
 
-        List<Entity> gcdSkillList = new List<Entity>
+        // Shared cooldown lists
+        List<Entity> gcdSkillList;
+        List<Entity> riverOfBloodSkillList;
+
+        // Making component lists
+        List<AnimationLockComponent> animationLockComponents = new List<AnimationLockComponent>();
+        List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
+        List<AutoAttackComponent> autoAttackComponents = new List<AutoAttackComponent>();
+        List<BardComponent> bardComponents = new List<BardComponent>();
+        List<ConditionalPotencyComponent> conditionalPotencyComponents = new List<ConditionalPotencyComponent>();
+        List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
+        List<DotEffectComponent> dotEffectComponents = new List<DotEffectComponent>();
+        List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents = new List<EnhancedEmpyrealArrowComponent>();
+        List<GenericStatusEffectComponent> genericStatusEffectComponents = new List<GenericStatusEffectComponent>();
+        List<HealthComponent> healthComponents = new List<HealthComponent>();
+        List<IronJawsEffectComponent> ironJawsEffectComponents = new List<IronJawsEffectComponent>();
+        List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
+        List<ModifierStateComponent> modifierStateComponents = new List<ModifierStateComponent>();
+        List<OverTimeStateComponent> overtimeStateComponents = new List<OverTimeStateComponent>();
+        List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
+        List<RiverOfBloodComponent> riverOfBloodComponents = new List<RiverOfBloodComponent>();
+        List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
+        List<SongComponent> songComponents = new List<SongComponent>();
+        List<StatusEffectComponent> statusEffectComponents = new List<StatusEffectComponent>();
+        List<StraighterShotEffectComponent> straighterShotEffectComponents = new List<StraighterShotEffectComponent>();
+        List<TargetComponent> targetComponents = new List<TargetComponent>();
+        List<UseConditionComponent> useConditionComponents = new List<UseConditionComponent>();
+        List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
+        List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
+
+        public Engine()
         {
-            heavyShot,
-            straightShot,
-            causticBite,
-            stormBite,
-            ironJaws,
-            refulgentArrow
-        };
+            _systems = new List<ISystem>();
+            _entities = new List<Entity>();
 
+            // Sets up a keyboard to watch for inputs
+            keyboard = new Keyboard();
 
-        List<Entity> riverOfBloodSkillList = new List<Entity>
-        {
-            bloodletter,
-            //rainOfDeath
-        };
+            // Initializing player entities
+            player = new Entity();
 
-        void Initialize()
-        {
-            // Main ESC code:
+            // Initializing enemy entities
+            enemy = new Entity();
 
+            // Initializing skill entities
+            heavyShot = new Entity();
+            straightShot = new Entity();
+            causticBite = new Entity();
+            stormBite = new Entity();
+            ironJaws = new Entity();
+            refulgentArrow = new Entity();
+            bloodletter = new Entity();
+            empyrealArrow = new Entity();
+            pitchPerfect = new Entity();
+            sidewinder = new Entity();
+            ragingStrikes = new Entity();
+            barrage = new Entity();
+            theWanderersMinuet = new Entity();
+            magesBallad = new Entity();
+            armysPaeon = new Entity();
 
+            // Shared cooldown lists
+            gcdSkillList = new List<Entity>
+            {
+                heavyShot,
+                straightShot,
+                causticBite,
+                stormBite,
+                ironJaws,
+                refulgentArrow
+            };
 
+            riverOfBloodSkillList = new List<Entity>
+            {
+                bloodletter,
+                //rainOfDeath
+            };
+
+            // Adding components to skills
             heavyShot.AddComponents(new List<Component>
             {
                 new SkillBaseComponent(heavyShot, SkillName.HeavyShot, SkillType.Weaponskill),
@@ -182,7 +240,6 @@ namespace BardSimV2
                 new SongComponent(armysPaeon, SongName.ArmysPaeon)
             });
 
-
             // Initializing player components
             player.AddComponents(new List<Component>
             {
@@ -204,7 +261,7 @@ namespace BardSimV2
                     magesBallad,
                     armysPaeon
                 }),
-                new AttributesComponent(player, 261, 2830, 2374, 249, 236, 2403, 1153, 1723, 801, 364, 364, 292, 105, 3.04m),
+                new AttributesComponent(player, 261, 2856, 2303, 249, 236, 2465, 1263, 1641, 715, 364, 364, 292, 105, 3.04m),
                 new ModifierStateComponent(player),
                 new AnimationLockComponent(player),
                 new AutoAttackComponent(player, 100),
@@ -256,32 +313,6 @@ namespace BardSimV2
             _entities.Add(theWanderersMinuet);
             _entities.Add(magesBallad);
             _entities.Add(armysPaeon);
-
-            // Making component lists
-            List<AnimationLockComponent> animationLockComponents = new List<AnimationLockComponent>();
-            List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
-            List<AutoAttackComponent> autoAttackComponents = new List<AutoAttackComponent>();
-            List<BardComponent> bardComponents = new List<BardComponent>();
-            List<ConditionalPotencyComponent> conditionalPotencyComponents = new List<ConditionalPotencyComponent>();
-            List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
-            List<DotEffectComponent> dotEffectComponents = new List<DotEffectComponent>();
-            List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents = new List<EnhancedEmpyrealArrowComponent>();
-            List<GenericStatusEffectComponent> genericStatusEffectComponents = new List<GenericStatusEffectComponent>();
-            List<HealthComponent> healthComponents = new List<HealthComponent>();
-            List<IronJawsEffectComponent> ironJawsEffectComponents = new List<IronJawsEffectComponent>();
-            List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
-            List<ModifierStateComponent> modifierStateComponents = new List<ModifierStateComponent>();
-            List<OverTimeStateComponent> overtimeStateComponents = new List<OverTimeStateComponent>();
-            List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
-            List<RiverOfBloodComponent> riverOfBloodComponents = new List<RiverOfBloodComponent>();
-            List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
-            List<SongComponent> songComponents = new List<SongComponent>();
-            List<StatusEffectComponent> statusEffectComponents = new List<StatusEffectComponent>();
-            List<StraighterShotEffectComponent> straighterShotEffectComponents = new List<StraighterShotEffectComponent>();
-            List<TargetComponent> targetComponents = new List<TargetComponent>();
-            List<UseConditionComponent> useConditionComponents = new List<UseConditionComponent>();
-            List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
-            List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
 
             foreach (Entity e in _entities)
             {
@@ -395,6 +426,186 @@ namespace BardSimV2
             _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
             _systems.Add(new AutoAttackSystem(attributesComponents, autoAttackComponents, bardComponents, healthComponents, modifierStateComponents, targetComponents));
             _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
+        }
+
+        public decimal Simulate (SimulationParameters mode, SimulationParameters target, decimal input, bool verbose)
+        {
+            // Executes the loop
+            if (mode == SimulationParameters.RealTime)
+            {
+                if (target == SimulationParameters.TimeTarget)
+                {
+                    // Starts the timer
+                    Stopwatch realTimer = new Stopwatch();
+                    realTimer.Start();
+
+                    while (realTimer.ElapsedMilliseconds.MilliToSeconds() < input)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, verbose);
+                        };
+
+                    }
+                    realTimer.Stop();
+                    //DEBUG: Total damage
+                    if (verbose)
+                    {
+                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
+                    }
+
+                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds();
+                }
+                else if (target == SimulationParameters.DamageTarget)
+                {
+                    // Starts the timer
+                    Stopwatch realTimer = new Stopwatch();
+                    realTimer.Start();
+
+                    while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, verbose);
+                        };
+
+                    }
+                    realTimer.Stop();
+                    //DEBUG: Total damage
+                    if (verbose)
+                    {
+                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
+                    }
+
+                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds();
+
+                }
+            }
+            else if (mode == SimulationParameters.FastTime)
+            {
+                if (target == SimulationParameters.TimeTarget)
+                {
+                    // Starts the timer
+                    decimal fastTimer = 0;
+
+                    while (fastTimer < input)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update(fastTimer, keyboard, verbose);
+                        };
+                        fastTimer += 0.01m;
+                    }
+
+                    //DEBUG: Total damage
+                    if (verbose)
+                    {
+                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
+                    }
+
+                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
+
+                }
+                else if (target == SimulationParameters.DamageTarget)
+                {
+                    // Starts the timer
+                    decimal fastTimer = 0;
+
+                    while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
+                    {
+                        foreach (ISystem sys in _systems)
+                        {
+                            sys.Update(fastTimer, keyboard, verbose);
+                        };
+                        fastTimer += 0.01m;
+                    }
+
+                    //DEBUG: Total damage
+                    if (verbose)
+                    {
+                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
+                    }
+
+                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
+
+                }
+            }
+            return -1;
+        }
+
+        public void Reinitialize()
+        {
+            // Zeroing components
+
+            foreach (AnimationLockComponent c in animationLockComponents)
+            {
+                c.Start = 0;
+            }
+            foreach (AutoAttackComponent c in autoAttackComponents)
+            {
+                c.NextAuto = 0;
+            }
+            foreach (BardComponent c in bardComponents)
+            {
+                c.Repertoire = 0;
+                c.Song = SongName.None;
+                c.SongDuration = 0;
+                c.SongStart = 0;
+            }
+            foreach (CooldownComponent c in cooldownComponents)
+            {
+                c.Start = 0;
+                c.UsableAt = 0;
+
+            }
+            foreach (HealthComponent c in healthComponents)
+            {
+                c.Amount = 0;
+                c.DamageTaken = 0;
+            }
+            foreach (KeyMappingComponent c in keyMappingComponents)
+            {
+                foreach (KeyBind k in c.KeyBinds)
+                {
+                    k.IsActive = false;
+                }
+            }
+            foreach (ModifierStateComponent c in modifierStateComponents)
+            {
+                c.BuffList = new List<Buff>();
+                c.EnablerList = new List<Enabler>();
+                c.BuffDictionary = new Dictionary<AttributeType, decimal>
+                {
+                    { AttributeType.Strenght, 0 },
+                    { AttributeType.Dexterity, 0 },
+                    { AttributeType.Vitality, 0 },
+                    { AttributeType.Intelligence, 0 },
+                    { AttributeType.Mind, 0},
+                    { AttributeType.CriticalHit, 0},
+                    { AttributeType.Determination, 0},
+                    { AttributeType.DirectHit, 0},
+                    { AttributeType.SkillSpeed, 0},
+                    { AttributeType.SpellSpeed, 0},
+                    { AttributeType.Tenacity, 0},
+                    { AttributeType.Piety, 0 },
+                    { AttributeType.WeaponDamage, 0 },
+                    { AttributeType.WeaponDelay, 0 },
+                    { AttributeType.CriticalHitRate, 0 },
+                    { AttributeType.DirectHitRate, 0 },
+                    { AttributeType.Arrow, 0 },
+                    { AttributeType.FeyWind, 0 },
+                    { AttributeType.Haste, 0 },
+                    { AttributeType.SpeedType1, 0 },
+                    { AttributeType.SpeedType2, 0 },
+                    { AttributeType.RiddleOfFire, 100 },
+                    { AttributeType.AstralUmbral, 100 },
+                };
+            }
+            foreach (OverTimeStateComponent c in overtimeStateComponents)
+            {
+                c.DotList = new List<DoT>();
+                c.Offset  = (new Random().Next(0, 300) * 10).MilliToSeconds();
+            }
         }
 
     }

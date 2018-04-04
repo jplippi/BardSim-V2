@@ -37,6 +37,8 @@ namespace BardSimV2
         TargetComponent targComp;
         BardComponent brdComp;
 
+        int gcdCounter = 0;
+
         public NewAISystem(Entity player, List<BardComponent> bardComponents, List<CooldownComponent> cooldownComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
         {
             this.player = player;
@@ -68,7 +70,7 @@ namespace BardSimV2
 
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, bool verbose)
         {
             if (timer == NextGCD(heavyShotCdComp))
             {

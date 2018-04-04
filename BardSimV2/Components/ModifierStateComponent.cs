@@ -13,9 +13,9 @@ namespace BardSimV2
         private List<Enabler> enablerList = new List<Enabler>();
 
 
-        public Dictionary<AttributeType, decimal> BuffDictionary { get => buffDictionary; }
-        public List<Buff> BuffList { get => buffList; }
-        public List<Enabler> EnablerList { get => enablerList; }
+        public Dictionary<AttributeType, decimal> BuffDictionary { get => buffDictionary; set => buffDictionary = value; }
+        public List<Buff> BuffList { get => buffList; set => buffList = value; }
+        public List<Enabler> EnablerList { get => enablerList; set => enablerList = value; }
 
         public ModifierStateComponent(Entity parent) : base(parent)
         {

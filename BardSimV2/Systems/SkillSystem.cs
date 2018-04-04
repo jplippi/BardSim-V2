@@ -63,7 +63,7 @@ namespace BardSimV2
             rng = new Random();
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, bool verbose)
         {
             foreach ( KeyMappingComponent keyMapComp in keyMappingComponents)
             {
@@ -124,11 +124,14 @@ namespace BardSimV2
                                     {
                                         string isGCD = "  ";
 
-                                        //DEBUG: debug string
-                                        if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.IronJaws)
+                                        if (verbose)
                                         {
-                                            Console.WriteLine("\n");
-                                            isGCD = "";
+                                            //DEBUG: debug string
+                                            if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.IronJaws)
+                                            {
+                                                Console.WriteLine("\n");
+                                                isGCD = "";
+                                            }
                                         }
 
                                         //DEBUG: debug flag
@@ -298,13 +301,16 @@ namespace BardSimV2
 
                                             totalDamage1 = CombatFormulas.DirectDamage(potMod, wdMod, apMod, detMod, tenMod, traitMod, critMod1, dhitMod1, modStateComp.BuffList);
 
-                                            //DEBUG: Listing damage mods
-                                            foreach (Buff b in modStateComp.BuffList)
+                                            if (verbose)
                                             {
-                                                if (b.Type == AttributeType.Damage)
+                                                //DEBUG: Listing damage mods
+                                                foreach (Buff b in modStateComp.BuffList)
                                                 {
-                                                    damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
-                                                }
+                                                    if (b.Type == AttributeType.Damage)
+                                                    {
+                                                        damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
+                                                    }
+                                            }
                                             }
 
                                             // Checks for barrage
@@ -360,26 +366,33 @@ namespace BardSimV2
                                                 // Removes the effect of barrage
                                                 modStateComp.EnablerList.Remove(barrage);
 
-                                                //DEBUG: Console log
-                                                Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage2, critical2, direct2, critChance, damageMods, isGCD);
-                                                Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage3, critical3, direct3, critChance, damageMods, isGCD);
-
+                                                if (verbose)
+                                                {
+                                                    //DEBUG: Console log
+                                                    Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage2, critical2, direct2, critChance, damageMods, isGCD);
+                                                    Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage3, critical3, direct3, critChance, damageMods, isGCD);
+                                                }
                                             }
 
                                             // Inflicts damage on target's health component
                                             targHealthComp.Amount -= totalDamage1;
                                             targHealthComp.DamageTaken += totalDamage1;
 
-                                            //DEBUG: Console log
-                                            Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage1, critical1, direct1, critChance, damageMods, isGCD);
-
+                                            if (verbose)
+                                            {
+                                                //DEBUG: Console log
+                                                Console.WriteLine("{7}[{0:00.00}]{3}{4}Used {1} for {2} damage. (Crit Chance: {5}, Damage buffs: {6})", timer, skillBaseComp.Name.ToString(), totalDamage1, critical1, direct1, critChance, damageMods, isGCD);
+                                            }
                                         }
 
-                                        //DEBUG: Console log
-                                        if (!isOffensive)
+                                        if (verbose)
                                         {
                                             //DEBUG: Console log
-                                            Console.WriteLine("{2}[{0:00.00}] Used {1}.", timer, skillBaseComp.Name.ToString(), isGCD);
+                                            if (!isOffensive)
+                                            {
+                                                //DEBUG: Console log
+                                                Console.WriteLine("{2}[{0:00.00}] Used {1}.", timer, skillBaseComp.Name.ToString(), isGCD);
+                                            }
                                         }
 
                                         // Activates animation lock
@@ -570,8 +583,11 @@ namespace BardSimV2
                                                     brdComp.Repertoire++;
                                                 }
 
-                                                // DEBUG: Console log
-                                                Console.WriteLine("        [{0:00.00}] Enhanced Empyreal Arrow activated. Repertoire: {1}", timer, brdComp.Repertoire);
+                                                if (verbose)
+                                                {
+                                                    // DEBUG: Console log
+                                                    Console.WriteLine("        [{0:00.00}] Enhanced Empyreal Arrow activated. Repertoire: {1}", timer, brdComp.Repertoire);
+                                                }
                                             }
                                         }
 
