@@ -30,7 +30,7 @@ namespace BardSimV2
             this.riverOfBloodComponents = riverOfBloodComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard, bool verbose)
+        public void Update(decimal timer, Keyboard keyboard)
         {
             foreach (OverTimeStateComponent otStateComp in overtimeStateComponents)
             {
@@ -52,9 +52,6 @@ namespace BardSimV2
                         // Executes the damage
                         if(((timer - otStateComp.Offset) % (3m) == 0) && (timer - dot.LastTick >= 3m))
                         {
-                            //DEBUG: debug strings
-                            string critical = " ";
-                            string direct = "";
 
                             decimal critMod = 1;
                             decimal dhitMod = 1;
@@ -67,17 +64,11 @@ namespace BardSimV2
 
                                 // For repertoire
                                 hasCrit = true;
-
-                                //DEBUG: debug string
-                                critical = " Critical! ";
                             }
 
                             if( (int)(dot.UsersChancesDictionary[AttributeType.DirectHitRate] * 10) > rng.Next(0, 1000))
                             {
                                 dhitMod = dot.UsersModifiersDictionary[DamageModifierType.DirectModifier];
-
-                                //DEBUG: debug string
-                                direct = " Direct! ";
                             }
 
                             decimal dotTick = CombatFormulas.DoTDamage
@@ -119,23 +110,6 @@ namespace BardSimV2
                                         }
                                     }
                                 }
-
-                            }
-
-                            if (verbose)
-                            {
-                                //DEBUG: Listing damage mods
-                                string damageMods = "";
-                                foreach (Buff b in dot.UsersBuffList)
-                                {
-                                    if (b.Type == AttributeType.Damage)
-                                    {
-                                        damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
-                                    }
-                                }
-
-                                //DEBUG: Console log
-                                Console.WriteLine("    [{0:00.00}]{3}{4}{1} ticked for {2} damage. (Crit Chance: {5}, Repertoire: {6}, Damage buffs: {7})", timer, dot.Name.ToString(), dotTick, critical, direct, dot.UsersChancesDictionary[AttributeType.CriticalHitRate], bardComponents.Find(x => x.Parent == dot.UserSource).Repertoire, damageMods);
                             }
                         }
                     }

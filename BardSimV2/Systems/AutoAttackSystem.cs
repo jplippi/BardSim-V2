@@ -28,7 +28,7 @@ namespace BardSimV2
         }
 
 
-        public void Update(decimal timer, Keyboard keyboard, bool verbose)
+        public void Update(decimal timer, Keyboard keyboard)
         {
             foreach (AutoAttackComponent aaComp in autoAttackComponents)
             {
@@ -47,11 +47,6 @@ namespace BardSimV2
                 // Inflict auto attack damage every X seconds, where X is the weapon delay
                 if( timer == aaComp.NextAuto)
                 {
-                    //DEBUG: debug strings
-                    string critical = " Critical! ";
-                    string direct = "Direct Hit! ";
-                    string damageMods = "";
-
                     decimal potMod = 1;
                     decimal aaMod = 1;
                     decimal apMod = 1;
@@ -121,17 +116,12 @@ namespace BardSimV2
                     {
                         critMod = 1;
 
-                        //DEBUG: debug string
-                        critical = " ";
                     }
 
                     // If not direct hit, modifier is 1
                     if ((int)(dhitChance * 10) < rng.Next(1, 1000))
                     {
                         dhitMod = 1;
-
-                        //DEBUG: debug string
-                        direct = "";
                     }
 
                     totalDamage = CombatFormulas.AutoAttackDamage(potMod, aaMod, apMod, detMod, tenMod, 1, ssMod, critMod, dhitMod, modStateComp.BuffList);
@@ -142,21 +132,6 @@ namespace BardSimV2
 
                     // Sets next auto
                     aaComp.NextAuto += attComp.AttributesDictionary[AttributeType.WeaponDelay];
-
-                    if (verbose)
-                    {
-                        //DEBUG: Listing damage mods
-                        foreach (Buff b in modStateComp.BuffList)
-                        {
-                            if (b.Type == AttributeType.Damage)
-                            {
-                                damageMods = $"{damageMods}+{(b.Modifier - 1) * 100}% ";
-                            }
-                        }
-
-                        Console.WriteLine("       [{0:00.00}]{2}{3}Auto attacked for {1} damage. (Crit Chance: {4}, Damage buffs: {5})", timer, totalDamage, critical, direct, critChance, damageMods);
-                    }
-
                 }
             }
         }

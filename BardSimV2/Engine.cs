@@ -69,7 +69,7 @@ namespace BardSimV2
         List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
         List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
 
-        public Engine()
+        public Engine( Dictionary<AttributeType,decimal> playerAttributes)
         {
             _systems = new List<ISystem>();
             _entities = new List<Entity>();
@@ -261,7 +261,7 @@ namespace BardSimV2
                     magesBallad,
                     armysPaeon
                 }),
-                new AttributesComponent(player, 261, 2856, 2303, 249, 236, 2465, 1263, 1641, 715, 364, 364, 292, 105, 3.04m),
+                new AttributesComponent(player, playerAttributes),
                 new ModifierStateComponent(player),
                 new AnimationLockComponent(player),
                 new AutoAttackComponent(player, 100),
@@ -428,61 +428,8 @@ namespace BardSimV2
             _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
         }
 
-        public decimal Simulate (SimulationParameters mode, SimulationParameters target, decimal input, bool verbose)
+        public decimal Simulate (SimulationParameters target, decimal input)
         {
-            // Executes the loop
-            if (mode == SimulationParameters.RealTime)
-            {
-                if (target == SimulationParameters.TimeTarget)
-                {
-                    // Starts the timer
-                    Stopwatch realTimer = new Stopwatch();
-                    realTimer.Start();
-
-                    while (realTimer.ElapsedMilliseconds.MilliToSeconds() < input)
-                    {
-                        foreach (ISystem sys in _systems)
-                        {
-                            sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, verbose);
-                        };
-
-                    }
-                    realTimer.Stop();
-                    //DEBUG: Total damage
-                    if (verbose)
-                    {
-                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
-                    }
-
-                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds();
-                }
-                else if (target == SimulationParameters.DamageTarget)
-                {
-                    // Starts the timer
-                    Stopwatch realTimer = new Stopwatch();
-                    realTimer.Start();
-
-                    while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
-                    {
-                        foreach (ISystem sys in _systems)
-                        {
-                            sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, verbose);
-                        };
-
-                    }
-                    realTimer.Stop();
-                    //DEBUG: Total damage
-                    if (verbose)
-                    {
-                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
-                    }
-
-                    return healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds();
-
-                }
-            }
-            else if (mode == SimulationParameters.FastTime)
-            {
                 if (target == SimulationParameters.TimeTarget)
                 {
                     // Starts the timer
@@ -492,15 +439,9 @@ namespace BardSimV2
                     {
                         foreach (ISystem sys in _systems)
                         {
-                            sys.Update(fastTimer, keyboard, verbose);
+                            sys.Update(fastTimer, keyboard);
                         };
                         fastTimer += 0.01m;
-                    }
-
-                    //DEBUG: Total damage
-                    if (verbose)
-                    {
-                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
                     }
 
                     return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
@@ -515,21 +456,14 @@ namespace BardSimV2
                     {
                         foreach (ISystem sys in _systems)
                         {
-                            sys.Update(fastTimer, keyboard, verbose);
+                            sys.Update(fastTimer, keyboard);
                         };
                         fastTimer += 0.01m;
-                    }
-
-                    //DEBUG: Total damage
-                    if (verbose)
-                    {
-                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
                     }
 
                     return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
 
                 }
-            }
             return -1;
         }
 

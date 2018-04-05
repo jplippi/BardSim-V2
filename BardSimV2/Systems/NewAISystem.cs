@@ -70,7 +70,7 @@ namespace BardSimV2
 
         }
 
-        public void Update(decimal timer, Keyboard keyboard, bool verbose)
+        public void Update(decimal timer, Keyboard keyboard)
         {
             if (timer == NextGCD(heavyShotCdComp))
             {

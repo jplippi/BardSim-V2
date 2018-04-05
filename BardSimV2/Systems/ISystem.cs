@@ -9,6 +9,6 @@ namespace BardSimV2
 {
     interface ISystem
     {
-        void Update(decimal timer, Keyboard keyboard, bool verbose);
+        void Update(decimal timer, Keyboard keyboard);
     }
 }
