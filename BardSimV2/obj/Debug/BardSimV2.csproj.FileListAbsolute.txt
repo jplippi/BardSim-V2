@@ -19,3 +19,5 @@ C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csprojResolv
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csproj.CoreCompileInputs.cache
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.exe
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.pdb
+C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.exe.config
+C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csproj.CopyComplete
