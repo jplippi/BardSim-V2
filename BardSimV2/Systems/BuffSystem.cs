@@ -53,6 +53,7 @@ namespace BardSimV2
                 {
                     modStateComp.BuffList.Remove(buff);
                 }
+                buffToBeRemoved = new List<Buff>();
 
                 foreach (Enabler enabler in modStateComp.EnablerList)
                 {
@@ -67,6 +68,7 @@ namespace BardSimV2
                 {
                     modStateComp.EnablerList.Remove(enabler);
                 }
+                enablerToBeRemoved = new List<Enabler>();
 
             }
 

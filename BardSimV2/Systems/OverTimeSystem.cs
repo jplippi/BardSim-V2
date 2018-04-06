@@ -119,6 +119,7 @@ namespace BardSimV2
                 {
                     otStateComp.DotList.Remove(dot);
                 }
+                toBeRemoved = new List<DoT>();
 
             }
         }

@@ -217,22 +217,29 @@ namespace BardSimV2
                     }
                     timer.Stop();
 
-                    StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps.csv");
-                    CsvWriter csvWriter = new CsvWriter(stream);
 
+                    Console.WriteLine("\nAverage DPS: {0:0.00}\nMax: {1:0.00}\nMin: {2:0.00}",results.Average(),results.Max(),results.Min());
+
+                    Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+
+                    Console.WriteLine("\nWriting to CSV.");
+                    StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps"+ k.ToString() + @".csv");
+                    CsvWriter csvWriter = new CsvWriter(stream);
+                    timer.Restart();
                     foreach (decimal d in results)
                     {
                         csvWriter.WriteRecord((double)d);
                         csvWriter.NextRecord();
 
                     }
+                    timer.Stop();
+
+                    Console.WriteLine("\nWrite time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
 
                     stream.Dispose();
 
 
-                    Console.WriteLine("\nAverage DPS: {0:0.00}\nMax: {1:0.00}\nMin: {2:0.00}",results.Average(),results.Max(),results.Min());
-
-                    Console.WriteLine("\nStopwatch: {0}", timer.ElapsedMilliseconds);
                 }
             }
         }
