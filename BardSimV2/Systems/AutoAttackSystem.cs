@@ -67,22 +67,14 @@ namespace BardSimV2
                     // Calculates auto attack modifier
                     aaMod = CombatFormulas.AutoAttackMod(attComp.AttributesDictionary[AttributeType.WeaponDamage], attComp.AttributesDictionary[AttributeType.WeaponDelay]);
 
-                    // Calculates attack power modifier
-                    if (brdComp.Job == Job.Paladin || brdComp.Job == Job.Warrior || brdComp.Job == Job.DarkKnight || brdComp.Job == Job.Monk || brdComp.Job == Job.Dragoon || brdComp.Job == Job.Samurai)
-                    {
-                        apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Strenght] + modStateComp.BuffDictionary[AttributeType.Strenght]);
-                    }
-                    else if (brdComp.Job == Job.Ninja || brdComp.Job == Job.Bard || brdComp.Job == Job.Machinist)
+                    // Calculates attack power modifier (every job uses str, except dex-based jobs)
+                    if (brdComp.Job == Job.Ninja || brdComp.Job == Job.Bard || brdComp.Job == Job.Machinist)
                     {
                         apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Dexterity] + modStateComp.BuffDictionary[AttributeType.Dexterity]);
                     }
-                    else if (brdComp.Job == Job.BlackMage || brdComp.Job == Job.Summoner || brdComp.Job == Job.RedMage)
+                    else
                     {
-                        apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Intelligence] + modStateComp.BuffDictionary[AttributeType.Intelligence]);
-                    }
-                    else if (brdComp.Job == Job.WhiteMage || brdComp.Job == Job.Scholar || brdComp.Job == Job.Astrologian)
-                    {
-                        apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Mind] + modStateComp.BuffDictionary[AttributeType.Mind]);
+                        apMod = CombatFormulas.AttackPowerDamageMod(attComp.AttributesDictionary[AttributeType.Strenght] + modStateComp.BuffDictionary[AttributeType.Strenght]);
                     }
 
                     // Calculates determination modifier
@@ -91,37 +83,34 @@ namespace BardSimV2
                     // Calculates tenacity modifier
                     tenMod = CombatFormulas.TenacityDamageMod(attComp.AttributesDictionary[AttributeType.Tenacity] + modStateComp.BuffDictionary[AttributeType.Tenacity]);
 
-                    // Calculates speed modifier
-                    if (brdComp.Job == Job.BlackMage || brdComp.Job == Job.Summoner || brdComp.Job == Job.RedMage || brdComp.Job == Job.WhiteMage || brdComp.Job == Job.Scholar || brdComp.Job == Job.Astrologian)
-                    {
-                        ssMod = CombatFormulas.SpeedDamageMod(attComp.AttributesDictionary[AttributeType.SpellSpeed] + modStateComp.BuffDictionary[AttributeType.SpellSpeed]);
-                    }
-                    else
-                    {
-                        ssMod = CombatFormulas.SpeedDamageMod(attComp.AttributesDictionary[AttributeType.SkillSpeed] + modStateComp.BuffDictionary[AttributeType.SkillSpeed]);
-                    }
+                    // Calculates speed modifier (even casters use sks for this)
+
+                    ssMod = CombatFormulas.SpeedDamageMod(attComp.AttributesDictionary[AttributeType.SkillSpeed] + modStateComp.BuffDictionary[AttributeType.SkillSpeed]);
 
                     critChance = CombatFormulas.CriticalHitRate(attComp.AttributesDictionary[AttributeType.CriticalHit]) + modStateComp.BuffDictionary[AttributeType.CriticalHitRate];
 
                     dhitChance = CombatFormulas.DirectHitRate(attComp.AttributesDictionary[AttributeType.DirectHit]) + modStateComp.BuffDictionary[AttributeType.DirectHitRate];
 
                     // Calculates crit modifier
-                    critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + modStateComp.BuffDictionary[AttributeType.CriticalHit]);
-
-                    // Calculates dhit modifier
-                    dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + modStateComp.BuffDictionary[AttributeType.DirectHit]);
-
                     // If not critical hit, modifier is 1
                     if ((int)(critChance * 10) < rng.Next(1, 1000))
                     {
                         critMod = 1;
-
+                    }
+                    else
+                    {
+                        critMod = CombatFormulas.CriticalHitDamageMod(attComp.AttributesDictionary[AttributeType.CriticalHit] + modStateComp.BuffDictionary[AttributeType.CriticalHit]);
                     }
 
+                    // Calculates dhit modifier
                     // If not direct hit, modifier is 1
                     if ((int)(dhitChance * 10) < rng.Next(1, 1000))
                     {
                         dhitMod = 1;
+                    }
+                    else
+                    {
+                        dhitMod = CombatFormulas.DirectHitDamageMod(attComp.AttributesDictionary[AttributeType.DirectHit] + modStateComp.BuffDictionary[AttributeType.DirectHit]);
                     }
 
                     totalDamage = CombatFormulas.AutoAttackDamage(potMod, aaMod, apMod, detMod, tenMod, 1, ssMod, critMod, dhitMod, modStateComp.BuffList);

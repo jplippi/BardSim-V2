@@ -69,7 +69,7 @@ namespace BardSimV2
         List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
         List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
 
-        public Engine( Dictionary<AttributeType,decimal> playerAttributes)
+        public Engine( AttributesDictionary playerAttributes)
         {
             _systems = new List<ISystem>();
             _entities = new List<Entity>();
@@ -508,32 +508,8 @@ namespace BardSimV2
             {
                 c.BuffList = new List<Buff>();
                 c.EnablerList = new List<Enabler>();
-                c.BuffDictionary = new Dictionary<AttributeType, decimal>
-                {
-                    { AttributeType.Strenght, 0 },
-                    { AttributeType.Dexterity, 0 },
-                    { AttributeType.Vitality, 0 },
-                    { AttributeType.Intelligence, 0 },
-                    { AttributeType.Mind, 0},
-                    { AttributeType.CriticalHit, 0},
-                    { AttributeType.Determination, 0},
-                    { AttributeType.DirectHit, 0},
-                    { AttributeType.SkillSpeed, 0},
-                    { AttributeType.SpellSpeed, 0},
-                    { AttributeType.Tenacity, 0},
-                    { AttributeType.Piety, 0 },
-                    { AttributeType.WeaponDamage, 0 },
-                    { AttributeType.WeaponDelay, 0 },
-                    { AttributeType.CriticalHitRate, 0 },
-                    { AttributeType.DirectHitRate, 0 },
-                    { AttributeType.Arrow, 0 },
-                    { AttributeType.FeyWind, 0 },
-                    { AttributeType.Haste, 0 },
-                    { AttributeType.SpeedType1, 0 },
-                    { AttributeType.SpeedType2, 0 },
-                    { AttributeType.RiddleOfFire, 100 },
-                    { AttributeType.AstralUmbral, 100 },
-                };
+                c.BuffDictionary = new BuffsDictionary();
+
             }
             foreach (OverTimeStateComponent c in overtimeStateComponents)
             {

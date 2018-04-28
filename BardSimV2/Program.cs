@@ -13,6 +13,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System.IO;
+using System.Data;
 
 namespace BardSimV2
 {
@@ -25,194 +26,155 @@ namespace BardSimV2
             {
 
                 // Asks for run mode and duration
+                DataTable dpsTable = new DataTable("DPS");
                 List<string> ariyalaSets = new List<string>();
-                Dictionary<AttributeType, int> attributes = new Dictionary<AttributeType, int>();
 
                 int numberOfSets = 0;
                 int numberOfRuns = 0;
-                decimal input = 0;
-                bool validCode = false;
+                decimal simulationTarget = 0;
+                List<AttributesDictionary> listOfAttDicts = new List<AttributesDictionary>();
 
-                Regex ariyalaMatch = new Regex("^(http:\\/\\/)?(ffxiv.ariyala.com\\/)?([a-zA-Z0-9]{5})$");
-                Regex attributesMatch = new Regex("(.*)? ");
-                string ariyalaLink = "";
+                bool validSetNumber = true;
+                bool validCode = true;
+                bool validRunsNumber = true;
+                bool validSimulationTarget = true;
+                SimulationParameters simulationParameter = SimulationParameters.Invalid;
 
-                SimulationParameters target = SimulationParameters.Invalid;
-
-                while (numberOfSets == 0)
+                do
                 {
                     Console.WriteLine("\nInput the number of gearsets:");
-                    int.TryParse(Console.ReadLine(), out numberOfSets);
+
+                    try
+                    {
+                        int.TryParse(Console.ReadLine(), out numberOfSets);
+                        if (numberOfSets <= 0)
+                        {
+                            throw new InvalidDataException("Number must be greater than zero.");
+                        }
+                        validSetNumber = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        validSetNumber = false;
+                    }
                 }
+                while (!validSetNumber);
 
-                List<Dictionary<AttributeType, decimal>> attributesDictionaryList = new List<Dictionary<AttributeType, decimal>>();
-
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument("headless");
-
-                ChromeDriverService service = ChromeDriverService.CreateDefaultService();
-                service.HideCommandPromptWindow = true;
-
-                IWebDriver driver = new ChromeDriver(service, options);
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                AriyalaScraper scraper = new AriyalaScraper();
 
                 for ( int i = 0; i < numberOfSets; i++)
                 {
-
-                    validCode = false;
-                    Console.WriteLine("");
-                    while (!validCode)
+                    do
                     {
-                        Console.WriteLine("Enter the Ariyala link or code #{0}:", i+1);
-                        string ariyalaCode = Console.ReadLine();
-                        if (!ariyalaMatch.IsMatch(ariyalaCode))
+                        Console.WriteLine("\nEnter the Ariyala link or code #{0}:", i + 1);
+
+                        try
                         {
-                            Console.Write("\nInvalid link or code. ");
+                            string ariyalaCode = Console.ReadLine();
+                            listOfAttDicts.Add(scraper.GetAriyalaSet(ariyalaCode));
+                            validCode = true;
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validCode = false;
+                        }
+                    }
+                    while (!validCode);
+                }
+
+                do
+                {
+                    Console.WriteLine("\nInput the number of simulations:");
+
+                    try
+                    {
+                        int.TryParse(Console.ReadLine(), out numberOfRuns);
+                        if (numberOfRuns <= 0)
+                        {
+                            throw new InvalidDataException("Number must be greater than zero.");
+                        }
+                        validRunsNumber = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        validRunsNumber = false;
+                    }
+                }
+                while (!validRunsNumber);
+
+                do
+                {
+                    Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
+
+                    try
+                    {
+                        char targetChar = Console.ReadLine()[0];
+
+                        if (targetChar == 'D')
+                        {
+                            simulationParameter = SimulationParameters.DamageTarget;
+                        }
+                        else if (targetChar == 'T')
+                        {
+                            simulationParameter = SimulationParameters.TimeTarget;
                         }
                         else
                         {
-                            ariyalaLink = "http://ffxiv.ariyala.com/" + ariyalaMatch.Match(ariyalaCode).Groups[3].Value;
-                            validCode = true;
-
-                            try
-                            {
-
-                                driver.Url = ariyalaLink;
-                                driver.Navigate();
-
-                                wait.Until(new Func<IWebDriver, bool>(IsLoaded));
-
-                                List<string> attributesList = new List<string>();
-
-
-                                var elementList = driver.FindElements(By.XPath("//td[@class=\"th attributeName total totalPos\"]"));
-
-                                foreach (var element in elementList)
-                                {
-                                    attributesList.Add(element.Text);
-                                }
-
-                                if (driver.FindElement(By.Id("categoryBoxContentName")).Text != "Bard")
-                                {
-                                    throw new NotImplementedException();
-                                }
-
-                                Console.WriteLine("");
-                                List<string> attributesNames = new List<string> { "DEX: ", "DHIT: ", "CRIT: ", "DET: ", "SKS: ", "VIT: " };
-                                List<AttributeType> attributesTypes = new List<AttributeType> { AttributeType.Dexterity, AttributeType.DirectHit, AttributeType.CriticalHit, AttributeType.Determination, AttributeType.SkillSpeed, AttributeType.Vitality };
-                                Dictionary<AttributeType, decimal> attributesDictionary = new Dictionary<AttributeType, decimal>
-                                {
-                                    { AttributeType.Strenght, 264 },
-                                    { AttributeType.Dexterity, 386 },
-                                    { AttributeType.Vitality, 292 },
-                                    { AttributeType.Intelligence, 247 },
-                                    { AttributeType.Mind, 232},
-                                    { AttributeType.CriticalHit, 364},
-                                    { AttributeType.Determination, 292},
-                                    { AttributeType.DirectHit, 364},
-                                    { AttributeType.SkillSpeed, 364},
-                                    { AttributeType.SpellSpeed, 364},
-                                    { AttributeType.Tenacity, 364},
-                                    { AttributeType.Piety, 292 },
-                                    { AttributeType.WeaponDamage, 4 },
-                                    { AttributeType.WeaponDelay, 2.8m }
-                                };
-
-                                for (int j = 0; j < attributesList.Count; j++)
-                                {
-                                    GroupCollection match = attributesMatch.Match(attributesList[j]).Groups;
-
-                                    decimal.TryParse(match[1].Value, out decimal attribute);
-                                    attributesDictionary[attributesTypes[j]] = attribute;
-
-                                    Console.WriteLine(attributesNames[j] + match[1].Value);
-                                }
-
-                                decimal weaponDamage = 0;
-                                decimal weaponDelay = 0;
-
-                                while (weaponDamage == 0)
-                                {
-                                    Console.WriteLine("\nPlease manually input the Weapon Damage:");
-                                    decimal.TryParse(Console.ReadLine(), out weaponDamage);
-                                }
-
-                                while (weaponDelay == 0)
-                                {
-                                    Console.WriteLine("\nPlease manually input the Weapon Delay:");
-                                    decimal.TryParse(Console.ReadLine(), out weaponDelay);
-                                }
-
-                                attributesDictionary[AttributeType.WeaponDamage] = weaponDamage;
-                                attributesDictionary[AttributeType.WeaponDelay] = weaponDelay;
-
-                                attributesDictionaryList.Add(attributesDictionary);
-
-                            }
-                            catch (WebDriverTimeoutException)
-                            {
-                                Console.Write("\nRequest timed out. Invalid link or code. ");
-                                validCode = false;
-                            }
-                            catch (NotImplementedException)
-                            {
-                                Console.Write("\nNot a Bard gearset. ");
-                                validCode = false;
-                            }
+                            throw new InvalidDataException("Invalid type of simulation.");
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        simulationParameter = SimulationParameters.Invalid;
+                    }
                 }
-                driver.Dispose();
-                service.Dispose();
+                while (simulationParameter == SimulationParameters.Invalid);
 
-                while(numberOfRuns == 0)
+                do
                 {
-                    Console.WriteLine("\nInput the number of simulations:");
-                    int.TryParse(Console.ReadLine(), out numberOfRuns);
-                }
-
-                while (target == SimulationParameters.Invalid)
-                {
-
-                    Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
-                    char targetChar = Console.ReadLine()[0];
-
-                    if (targetChar == 'D')
+                    try
                     {
-                        target = SimulationParameters.DamageTarget;
+                        if (simulationParameter == SimulationParameters.DamageTarget)
+                        {
+                            Console.WriteLine("\nInput the damage target:");
+                            decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                        }
+                        else if (simulationParameter == SimulationParameters.TimeTarget)
+                        {
+                            Console.WriteLine("\nInput the time target:");
+                            decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                        }
+
+                        if(simulationTarget <= 0)
+                        {
+                            throw new InvalidDataException("Value must be greater than zero.");
+                        }
+                        validSimulationTarget = true;
                     }
-                    else if (targetChar == 'T')
+                    catch (Exception e)
                     {
-                        target = SimulationParameters.TimeTarget;
-                    }
-                }
-
-                while (input == 0)
-                {
-
-                    if (target == SimulationParameters.DamageTarget)
-                    {
-                        Console.WriteLine("\nInput the damage target:");
-                        decimal.TryParse(Console.ReadLine(), out input);
-                    }
-                    else if (target == SimulationParameters.TimeTarget)
-                    {
-                        Console.WriteLine("\nInput the time target:");
-                        decimal.TryParse(Console.ReadLine(), out input);
+                        Console.WriteLine(e.Message);
+                        validSimulationTarget = false;
                     }
                 }
+                while (!validSimulationTarget);
 
                 // Main loop
                 for (int k = 0; k < numberOfSets; k++)
                 {
                     List<decimal> results = new List<decimal>();
-                    Engine engine = new Engine(attributesDictionaryList[k]);
+                    Engine engine = new Engine(listOfAttDicts[k]);
                     Stopwatch timer = new Stopwatch();
                     timer.Start();
 
                     for (int i = 0; i < numberOfRuns; i++)
                     {
-                        results.Add(engine.Simulate(target, input));
+                        results.Add(engine.Simulate(simulationParameter, simulationTarget));
                         engine.Reinitialize();
                     }
                     timer.Stop();
@@ -227,6 +189,7 @@ namespace BardSimV2
                     StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps"+ k.ToString() + @".csv");
                     CsvWriter csvWriter = new CsvWriter(stream);
                     timer.Restart();
+
                     foreach (decimal d in results)
                     {
                         csvWriter.WriteRecord((double)d);
@@ -242,18 +205,6 @@ namespace BardSimV2
 
                 }
             }
-        }
-
-        public static bool IsLoaded(IWebDriver driver)
-        {
-            var element = driver.FindElement(By.Id("updateIndicator"));
-
-            if(element == null || element.GetAttribute("style") != "display: none;")
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

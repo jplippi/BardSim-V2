@@ -145,6 +145,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AriyalaScraper.cs" />
+    <Compile Include="Auxiliars\BuffsDictionary.cs" />
+    <Compile Include="Auxiliars\AttributesDictionary.cs" />
+    <Compile Include="Auxiliars\JobSettings.cs" />
     <Compile Include="Components\ConditionalPotencyComponent.cs" />
     <Compile Include="Components\UsesEnablerComponent.cs" />
     <Compile Include="Components\UsesRepertoireComponent.cs" />
