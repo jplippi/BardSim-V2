@@ -12,6 +12,6 @@ namespace BardSimV2
         VenomousBite,
         WindBite,
         CausticBite,
-        StormBite
+        Stormbite
     }
 }

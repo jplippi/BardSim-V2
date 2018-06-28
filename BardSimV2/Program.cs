@@ -1,541 +1,368 @@
-﻿using ExtensionMethods;
+﻿using CsvHelper;
+using ExtensionMethods;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
+using System.IO;
+using System.Data;
 
 namespace BardSimV2
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
             while (true)
             {
+                LogData logData = new LogData();
+                DataTable dpsTable = new DataTable("DPS");
+                List<string> ariyalaSets = new List<string>();
 
-                // Asks for run mode and duration
-                bool invalidMode = true;
-                bool invalidTarget = true;
-                bool invalidInput = true;
-                decimal input = 0;
+                int numberOfSets = 0;
+                int numberOfRuns = 0;
+                decimal simulationTarget = 0;
+                List<AttributesDictionary> listOfAttDicts = new List<AttributesDictionary>();
+                AttributesDictionary singleAttDict = new AttributesDictionary();
 
-                // GCD counter to keep track of opener
-                int gcdCounter = 0;
+                bool validSetNumber = true;
+                bool validCode = true;
+                bool validRunsNumber = true;
+                bool validSimulationTarget = true;
+                SimulationParameters simulationParameter = SimulationParameters.Invalid;
+                SimulationType simulationType = SimulationType.Invalid;
 
-                while(invalidMode == true)
+                // Asks for type of simulation
+                do
                 {
-                    Console.WriteLine("\nEnter 'R' for real-time mode, or 'F' for fast mode:");
-                    char mode = Console.ReadLine()[0];
+                    Console.WriteLine("\nEnter 'V' for a single verbose run, or 'M' for multiple runs:");
 
-                    if( mode == 'R' || mode == 'F')
+                    try
                     {
-                        invalidMode = false;
+                        char typeChar = Console.ReadLine()[0];
+
+                        if (typeChar == 'V')
+                        {
+                            simulationType = SimulationType.Verbose;
+                        }
+                        else if (typeChar == 'M')
+                        {
+                            simulationType = SimulationType.Multiple;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("Invalid type of simulation.");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        simulationType = SimulationType.Invalid;
+                    }
+                }
+                while (simulationType == SimulationType.Invalid);
+
+                // Multiple simulation
+                if(simulationType == SimulationType.Multiple)
+                {
+                    // Asks for number of gearsets
+                    do
+                    {
+                        Console.WriteLine("\nInput the number of gearsets:");
+
+                        try
+                        {
+                            int.TryParse(Console.ReadLine(), out numberOfSets);
+                            if (numberOfSets <= 0)
+                            {
+                                throw new InvalidDataException("Number must be greater than zero.");
+                            }
+                            validSetNumber = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSetNumber = false;
+                        }
+                    }
+                    while (!validSetNumber);
+
+                    // Instantiates the HTML scraper for Ariyala
+                    AriyalaScraper scraper = new AriyalaScraper();
+
+                    // Iterates over each gearset
+                    for (int i = 0; i < numberOfSets; i++)
+                    {
+                        do
+                        {
+                            Console.WriteLine("\nEnter the Ariyala link or code #{0}:", i + 1);
+
+                            try
+                            {
+                                string ariyalaCode = Console.ReadLine();
+                                listOfAttDicts.Add(scraper.GetAriyalaSet(ariyalaCode));
+                                validCode = true;
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                                validCode = false;
+                            }
+                        }
+                        while (!validCode);
                     }
 
-                    while(invalidMode == false && invalidTarget == true)
-                    {
+                    // Closes the browser
+                    scraper.Dispose();
 
+                    // Asks for number of simulations
+                    do
+                    {
+                        Console.WriteLine("\nInput the number of simulations:");
+
+                        try
+                        {
+                            int.TryParse(Console.ReadLine(), out numberOfRuns);
+                            if (numberOfRuns <= 0)
+                            {
+                                throw new InvalidDataException("Number must be greater than zero.");
+                            }
+                            validRunsNumber = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validRunsNumber = false;
+                        }
+                    }
+                    while (!validRunsNumber);
+
+                    // Asks for type of simulation
+                    do
+                    {
                         Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
-                        char target = Console.ReadLine()[0];
 
-                        if( target == 'D' || target == 'T')
+                        try
                         {
-                            invalidTarget = false;
+                            char targetChar = Console.ReadLine()[0];
+
+                            if (targetChar == 'D')
+                            {
+                                simulationParameter = SimulationParameters.DamageTarget;
+                            }
+                            else if (targetChar == 'T')
+                            {
+                                simulationParameter = SimulationParameters.TimeTarget;
+                            }
+                            else
+                            {
+                                throw new InvalidDataException("Invalid type of simulation.");
+                            }
                         }
-
-                        while(invalidMode == false && invalidTarget == false && invalidInput == true)
+                        catch (Exception e)
                         {
-
-                            if(target == 'D')
-                            {
-                                Console.WriteLine("Input the damage target:");
-                                if (decimal.TryParse(Console.ReadLine(), out input) && input != 0)
-                                {
-                                    invalidInput = false;
-                                }
-                            }
-                            else if(target == 'T')
-                            {
-                                Console.WriteLine("Input the time target:");
-                                if (decimal.TryParse(Console.ReadLine(), out input) && input != 0)
-                                {
-                                    invalidInput = false;
-                                }
-                            }
-
-                            if(invalidMode == false && invalidTarget == false && invalidInput == false)
-                            {
-
-                                // Main ESC code:
-
-                                List<ISystem> _systems = new List<ISystem>();
-                                List<Entity> _entities = new List<Entity>();
-
-                                // Sets up a keyboard to watch for inputs
-                                Keyboard keyboard = new Keyboard();
-
-                                // Initializing player entities
-                                Entity player = new Entity();
-
-                                // Initializing enemy entities
-                                Entity enemy = new Entity();
-
-                                // Initializing skill entities
-                                Entity heavyShot = new Entity();
-                                Entity straightShot = new Entity();
-                                Entity causticBite = new Entity();
-                                Entity stormBite = new Entity();
-                                Entity ironJaws = new Entity();
-                                Entity refulgentArrow = new Entity();
-                                Entity bloodletter = new Entity();
-                                Entity empyrealArrow = new Entity();
-                                Entity pitchPerfect = new Entity();
-                                Entity sidewinder = new Entity();
-                                Entity ragingStrikes = new Entity();
-                                Entity barrage = new Entity();
-                                Entity theWanderersMinuet = new Entity();
-                                Entity magesBallad = new Entity();
-                                Entity armysPaeon = new Entity();
-
-                                List<Entity> gcdSkillList = new List<Entity>
-                                {
-                                    heavyShot,
-                                    straightShot,
-                                    causticBite,
-                                    stormBite,
-                                    ironJaws,
-                                    refulgentArrow
-                                };
-
-
-                                List<Entity> riverOfBloodSkillList = new List<Entity>
-                                {
-                                    bloodletter,
-                                    //rainOfDeath
-                                };
-
-                                heavyShot.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(heavyShot, SkillName.HeavyShot, SkillType.Weaponskill),
-                                    new CooldownComponent(heavyShot, 2.5m, gcdSkillList),
-                                    new PotencyComponent(heavyShot, 150),
-                                    new StraighterShotEffectComponent(heavyShot, StatusName.StraighterShot, 10m, 20)
-                                });
-
-                                straightShot.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(straightShot, SkillName.StraightShot, SkillType.Weaponskill),
-                                    new CooldownComponent(straightShot, 2.5m, gcdSkillList),
-                                    new PotencyComponent(straightShot, 140),
-                                    new StatusEffectComponent(straightShot, AttributeType.CriticalHitRate, StatusName.StraightShot, ActorType.Self, 30, 10)
-                                });
-
-                                causticBite.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(causticBite, SkillName.CausticBite, SkillType.Weaponskill),
-                                    new CooldownComponent(causticBite, 2.5m, gcdSkillList),
-                                    new PotencyComponent(causticBite, 120),
-                                    new DotEffectComponent(causticBite, DotName.CausticBite, 30m, 45)
-                                });
-
-                                stormBite.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(stormBite, SkillName.Stormbite, SkillType.Weaponskill),
-                                    new CooldownComponent(stormBite, 2.5m, gcdSkillList),
-                                    new PotencyComponent(stormBite, 120),
-                                    new DotEffectComponent(stormBite, DotName.StormBite, 30m, 55)
-                                });
-
-                                ironJaws.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(ironJaws, SkillName.IronJaws, SkillType.Weaponskill),
-                                    new CooldownComponent(ironJaws, 2.5m, gcdSkillList),
-                                    new PotencyComponent(ironJaws, 100),
-                                    new IronJawsEffectComponent(ironJaws, new List<DotEffectComponent>
-                                    {
-                                        (DotEffectComponent)stormBite.Components.Find(x => x is DotEffectComponent),
-                                        (DotEffectComponent)causticBite.Components.Find(x => x is DotEffectComponent)
-                                    })
-                                });
-
-                                refulgentArrow.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(refulgentArrow, SkillName.RefulgentArrow, SkillType.Weaponskill),
-                                    new CooldownComponent(refulgentArrow, 2.5m, gcdSkillList),
-                                    new PotencyComponent(refulgentArrow, 300),
-                                    new UseConditionComponent(refulgentArrow, ConditionalFunctions.IsRefulgentArrowUsable),
-                                    new UsesEnablerComponent(refulgentArrow, StatusName.StraighterShot)
-                                });
-
-                                bloodletter.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(bloodletter, SkillName.Bloodletter, SkillType.Ability),
-                                    new CooldownComponent(bloodletter, 15m),
-                                    new PotencyComponent(bloodletter, 130)
-                                });
-
-                                empyrealArrow.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(empyrealArrow, SkillName.EmpyrealArrow, SkillType.Weaponskill),
-                                    new CooldownComponent(empyrealArrow, 15m),
-                                    new PotencyComponent(empyrealArrow, 230),
-                                    new EnhancedEmpyrealArrowComponent(empyrealArrow)
-                                });
-
-                                pitchPerfect.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(pitchPerfect, SkillName.PitchPerfect, SkillType.Ability),
-                                    new CooldownComponent(pitchPerfect, 3m),
-                                    new ConditionalPotencyComponent(pitchPerfect, ConditionalFunctions.PitchPerfectPotency),
-                                    new UseConditionComponent(pitchPerfect, ConditionalFunctions.IsPitchPerfectUsable),
-                                    new UsesRepertoireComponent(pitchPerfect)
-                                });
-
-                                sidewinder.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(sidewinder, SkillName.Sidewinder, SkillType.Ability),
-                                    new CooldownComponent(sidewinder, 60m),
-                                    new ConditionalPotencyComponent(sidewinder, ConditionalFunctions.SidewinderPotency)
-                                });
-
-                                ragingStrikes.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(ragingStrikes, SkillName.RagingStrikes, SkillType.Ability),
-                                    new CooldownComponent(ragingStrikes, 80m),
-                                    new StatusEffectComponent(ragingStrikes, AttributeType.Damage, StatusName.RagingStrikes, ActorType.Self, 20m, 1.1m)
-                                });
-
-                                barrage.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(barrage, SkillName.Barrage, SkillType.Ability),
-                                    new CooldownComponent(barrage, 80m),
-                                    new GenericStatusEffectComponent(barrage,StatusName.Barrage, 10m)
-                                });
-
-                                theWanderersMinuet.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(theWanderersMinuet, SkillName.TheWanderersMinuet, SkillType.Spell),
-                                    new CooldownComponent(theWanderersMinuet, 80m),
-                                    new PotencyComponent(theWanderersMinuet, 100),
-                                    new SongComponent(theWanderersMinuet, SongName.TheWanderersMinuet)
-                                });
-
-                                magesBallad.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(magesBallad, SkillName.MagesBallad, SkillType.Spell),
-                                    new CooldownComponent(magesBallad, 80m),
-                                    new PotencyComponent(magesBallad, 100),
-                                    new SongComponent(magesBallad, SongName.MagesBallad)
-                                });
-
-                                armysPaeon.AddComponents(new List<Component>
-                                {
-                                    new SkillBaseComponent(armysPaeon, SkillName.ArmysPaeon, SkillType.Spell),
-                                    new CooldownComponent(armysPaeon, 80m),
-                                    new PotencyComponent(armysPaeon, 100),
-                                    new SongComponent(armysPaeon, SongName.ArmysPaeon)
-                                });
-
-
-                                // Initializing player components
-                                player.AddComponents(new List<Component>
-                                {
-                                    new BardComponent(player, new List<Entity>
-                                    {
-                                        heavyShot,
-                                        straightShot,
-                                        causticBite,
-                                        stormBite,
-                                        ironJaws,
-                                        refulgentArrow,
-                                        bloodletter,
-                                        empyrealArrow,
-                                        pitchPerfect,
-                                        sidewinder,
-                                        ragingStrikes,
-                                        barrage,
-                                        theWanderersMinuet,
-                                        magesBallad,
-                                        armysPaeon
-                                    }),
-                                    new AttributesComponent(player, 261, 2830, 2374, 249, 236, 2403, 1153, 1723, 801, 364, 364, 292, 105, 3.04m),
-                                    new ModifierStateComponent(player),
-                                    new AnimationLockComponent(player),
-                                    new AutoAttackComponent(player, 100),
-                                    new RiverOfBloodComponent(player, riverOfBloodSkillList),
-                                    new KeyMappingComponent(player, new List<KeyBind>
-                                    {
-                                        new KeyBind(SkillName.HeavyShot, Keys.Num1),
-                                        new KeyBind(SkillName.StraightShot, Keys.Num2),
-                                        new KeyBind(SkillName.CausticBite, Keys.Num4),
-                                        new KeyBind(SkillName.Stormbite, Keys.Num3),
-                                        new KeyBind(SkillName.IronJaws, Keys.Num5),
-                                        new KeyBind(SkillName.RefulgentArrow, Keys.F3),
-                                        new KeyBind(SkillName.Bloodletter, Keys.R),
-                                        new KeyBind(SkillName.EmpyrealArrow, Keys.Num6),
-                                        new KeyBind(SkillName.PitchPerfect, Keys.T),
-                                        new KeyBind(SkillName.Sidewinder, Keys.Num7),
-                                        new KeyBind(SkillName.RagingStrikes, Keys.F1),
-                                        new KeyBind(SkillName.Barrage, Keys.F2),
-                                        new KeyBind(SkillName.TheWanderersMinuet, Keys.M1),
-                                        new KeyBind(SkillName.MagesBallad, Keys.M2),
-                                        new KeyBind(SkillName.ArmysPaeon, Keys.M3)
-                                    }),
-                                    // DEBUG: Setting enemy as player's target
-                                    new TargetComponent(player, enemy)
-                                });
-
-                                // Initializing enemy components
-                                enemy.AddComponents(new List<Component>
-                                {
-                                    new HealthComponent(enemy, 0),
-                                    new OverTimeStateComponent(enemy)
-                                });
-
-                                // Making entities list
-                                _entities.Add(player);
-                                _entities.Add(enemy);
-                                _entities.Add(heavyShot);
-                                _entities.Add(straightShot);
-                                _entities.Add(causticBite);
-                                _entities.Add(stormBite);
-                                _entities.Add(ironJaws);
-                                _entities.Add(refulgentArrow);
-                                _entities.Add(bloodletter);
-                                _entities.Add(empyrealArrow);
-                                _entities.Add(pitchPerfect);
-                                _entities.Add(sidewinder);
-                                _entities.Add(ragingStrikes);
-                                _entities.Add(barrage);
-                                _entities.Add(theWanderersMinuet);
-                                _entities.Add(magesBallad);
-                                _entities.Add(armysPaeon);
-
-                                // Making component lists
-                                List<AnimationLockComponent> animationLockComponents = new List<AnimationLockComponent>();
-                                List<AttributesComponent> attributesComponents = new List<AttributesComponent>();
-                                List<AutoAttackComponent> autoAttackComponents = new List<AutoAttackComponent>();
-                                List<BardComponent> bardComponents = new List<BardComponent>();
-                                List<ConditionalPotencyComponent> conditionalPotencyComponents = new List<ConditionalPotencyComponent>();
-                                List<CooldownComponent> cooldownComponents = new List<CooldownComponent>();
-                                List<DotEffectComponent> dotEffectComponents = new List<DotEffectComponent>();
-                                List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents = new List<EnhancedEmpyrealArrowComponent>();
-                                List<GenericStatusEffectComponent> genericStatusEffectComponents = new List<GenericStatusEffectComponent>();
-                                List<HealthComponent> healthComponents = new List<HealthComponent>();
-                                List<IronJawsEffectComponent> ironJawsEffectComponents = new List<IronJawsEffectComponent>();
-                                List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
-                                List<ModifierStateComponent> modifierStateComponents = new List<ModifierStateComponent>();
-                                List<OverTimeStateComponent> overtimeStateComponents = new List<OverTimeStateComponent>();
-                                List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
-                                List<RiverOfBloodComponent> riverOfBloodComponents = new List<RiverOfBloodComponent>();
-                                List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
-                                List<SongComponent> songComponents = new List<SongComponent>();
-                                List<StatusEffectComponent> statusEffectComponents = new List<StatusEffectComponent>();
-                                List<StraighterShotEffectComponent> straighterShotEffectComponents = new List<StraighterShotEffectComponent>();
-                                List<TargetComponent> targetComponents = new List<TargetComponent>();
-                                List<UseConditionComponent> useConditionComponents = new List<UseConditionComponent>();
-                                List<UsesEnablerComponent> usesEnablerComponents = new List<UsesEnablerComponent>();
-                                List<UsesRepertoireComponent> usesRepertoireComponents = new List<UsesRepertoireComponent>();
-
-                                foreach (Entity e in _entities)
-                                {
-                                    foreach (Component c in e.Components)
-                                    {
-                                        if (c is AnimationLockComponent)
-                                        {
-                                            animationLockComponents.Add((AnimationLockComponent)c);
-                                        }
-                                        else if (c is AttributesComponent)
-                                        {
-                                            attributesComponents.Add((AttributesComponent)c);
-                                        }
-                                        else if (c is AutoAttackComponent)
-                                        {
-                                            autoAttackComponents.Add((AutoAttackComponent)c);
-                                        }
-                                        else if (c is BardComponent)
-                                        {
-                                            bardComponents.Add((BardComponent)c);
-                                        }
-                                        else if (c is ConditionalPotencyComponent)
-                                        {
-                                            conditionalPotencyComponents.Add((ConditionalPotencyComponent)c);
-                                        }
-                                        else if (c is CooldownComponent)
-                                        {
-                                            cooldownComponents.Add((CooldownComponent)c);
-                                        }
-                                        else if (c is DotEffectComponent)
-                                        {
-                                            dotEffectComponents.Add((DotEffectComponent)c);
-                                        }
-                                        else if (c is EnhancedEmpyrealArrowComponent)
-                                        {
-                                            enhancedEmpyrealArrowComponents.Add((EnhancedEmpyrealArrowComponent)c);
-                                        }
-                                        else if (c is GenericStatusEffectComponent)
-                                        {
-                                            genericStatusEffectComponents.Add((GenericStatusEffectComponent)c);
-                                        }
-                                        else if (c is HealthComponent)
-                                        {
-                                            healthComponents.Add((HealthComponent)c);
-                                        }
-                                        else if (c is IronJawsEffectComponent)
-                                        {
-                                            ironJawsEffectComponents.Add((IronJawsEffectComponent)c);
-                                        }
-                                        else if (c is KeyMappingComponent)
-                                        {
-                                            keyMappingComponents.Add((KeyMappingComponent)c);
-                                        }
-                                        else if (c is ModifierStateComponent)
-                                        {
-                                            modifierStateComponents.Add((ModifierStateComponent)c);
-                                        }
-                                        else if (c is OverTimeStateComponent)
-                                        {
-                                            overtimeStateComponents.Add((OverTimeStateComponent)c);
-                                        }
-                                        else if (c is PotencyComponent)
-                                        {
-                                            potencyComponents.Add((PotencyComponent)c);
-                                        }
-                                        else if (c is RiverOfBloodComponent)
-                                        {
-                                            riverOfBloodComponents.Add((RiverOfBloodComponent)c);
-                                        }
-                                        else if (c is SkillBaseComponent)
-                                        {
-                                            skillBaseComponents.Add((SkillBaseComponent)c);
-                                        }
-                                        else if (c is SongComponent)
-                                        {
-                                            songComponents.Add((SongComponent)c);
-                                        }
-                                        else if (c is StatusEffectComponent)
-                                        {
-                                            statusEffectComponents.Add((StatusEffectComponent)c);
-                                        }
-                                        else if (c is StraighterShotEffectComponent)
-                                        {
-                                            straighterShotEffectComponents.Add((StraighterShotEffectComponent)c);
-                                        }
-                                        else if (c is TargetComponent)
-                                        {
-                                            targetComponents.Add((TargetComponent)c);
-                                        }
-                                        else if (c is UseConditionComponent)
-                                        {
-                                            useConditionComponents.Add((UseConditionComponent)c);
-                                        }
-                                        else if (c is UsesEnablerComponent)
-                                        {
-                                            usesEnablerComponents.Add((UsesEnablerComponent)c);
-                                        }
-                                        else if (c is UsesRepertoireComponent)
-                                        {
-                                            usesRepertoireComponents.Add((UsesRepertoireComponent)c);
-                                        }
-                                    }
-                                }
-
-                                // Initializing systems
-                                //_systems.Add(new AIDebugSystem(player, bardComponents, cooldownComponents, modifierStateComponents, overtimeStateComponents, skillBaseComponents, targetComponents));
-                                _systems.Add(new NewAISystem(player, bardComponents, cooldownComponents, modifierStateComponents, overtimeStateComponents, skillBaseComponents, targetComponents));
-                                _systems.Add(new KeystrokeListenerSystem(keyMappingComponents));
-                                _systems.Add(new OverTimeSystem(bardComponents, cooldownComponents, healthComponents, modifierStateComponents, overtimeStateComponents, riverOfBloodComponents));
-                                _systems.Add(new RepertoireSystem(bardComponents, cooldownComponents, modifierStateComponents, riverOfBloodComponents));
-                                _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
-                                _systems.Add(new AutoAttackSystem(attributesComponents, autoAttackComponents, bardComponents, healthComponents, modifierStateComponents, targetComponents));
-                                _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
-
-
-                                
-                                // Executes the loop
-                                if (mode == 'R')
-                                {
-                                    if (target == 'T')
-                                    {
-                                        // Starts the timer
-                                        Stopwatch realTimer = new Stopwatch();
-                                        realTimer.Start();
-
-                                        while (realTimer.ElapsedMilliseconds.MilliToSeconds() < input)
-                                        {
-                                            foreach (ISystem sys in _systems)
-                                            {
-                                                sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, ref gcdCounter);
-                                            };
-
-                                        }
-                                        realTimer.Stop();
-                                        //DEBUG: Total damage
-                                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
-                                    }
-                                    else if (target == 'D')
-                                    {
-                                        // Starts the timer
-                                        Stopwatch realTimer = new Stopwatch();
-                                        realTimer.Start();
-
-                                        while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
-                                        {
-                                            foreach (ISystem sys in _systems)
-                                            {
-                                                sys.Update(realTimer.ElapsedMilliseconds.MilliToSeconds(), keyboard, ref gcdCounter);
-                                            };
-
-                                        }
-                                        realTimer.Stop();
-                                        //DEBUG: Total damage
-                                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / realTimer.ElapsedMilliseconds.MilliToSeconds(), realTimer.ElapsedMilliseconds.MilliToSeconds());
-                                    }
-                                }
-                                else if(mode == 'F')
-                                {
-                                    if (target == 'T')
-                                    {
-                                        // Starts the timer
-                                        decimal fastTimer = 0;
-
-                                        while (fastTimer < input)
-                                        {
-                                            foreach (ISystem sys in _systems)
-                                            {
-                                                sys.Update(fastTimer, keyboard, ref gcdCounter);
-                                            };
-                                            fastTimer += 0.01m;
-                                        }
-
-                                        //DEBUG: Total damage
-                                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
-                                    }
-                                    else if (target == 'D')
-                                    {
-                                        // Starts the timer
-                                        decimal fastTimer = 0;
-
-                                        while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
-                                        {
-                                            foreach (ISystem sys in _systems)
-                                            {
-                                                sys.Update(fastTimer, keyboard, ref gcdCounter);
-                                            };
-                                            fastTimer += 0.01m;
-                                        }
-
-                                        //DEBUG: Total damage
-                                        Console.WriteLine("\nTotal damage done: {0}\n Total DPS: {1:0.00}\n Duration: {2:00.00} seconds.", healthComponents.Find(x => x.Parent == enemy).DamageTaken, healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer, fastTimer);
-
-                                    }
-                                }
-                            }
+                            Console.WriteLine(e.Message);
+                            simulationParameter = SimulationParameters.Invalid;
                         }
                     }
+                    while (simulationParameter == SimulationParameters.Invalid);
+
+                    // Asks for target of simulation (seconds or total damage)
+                    do
+                    {
+                        try
+                        {
+                            if (simulationParameter == SimulationParameters.DamageTarget)
+                            {
+                                Console.WriteLine("\nInput the  total damage target:");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+                            else if (simulationParameter == SimulationParameters.TimeTarget)
+                            {
+                                Console.WriteLine("\nInput the time target (in seconds):");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+
+                            if (simulationTarget <= 0)
+                            {
+                                throw new InvalidDataException("Value must be greater than zero.");
+                            }
+                            validSimulationTarget = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSimulationTarget = false;
+                        }
+                    }
+                    while (!validSimulationTarget);
+
+                    // Main loop
+                    for (int k = 0; k < numberOfSets; k++)
+                    {
+                        List<decimal> results = new List<decimal>();
+                        Engine engine = new Engine(listOfAttDicts[k]);
+                        Stopwatch timer = new Stopwatch();
+
+                        // Simulates each gearset
+                        timer.Start();
+                        for (int i = 0; i < numberOfRuns; i++)
+                        {
+                            results.Add(engine.Simulate(simulationParameter, simulationTarget));
+                            engine.Reinitialize();
+                        }
+                        timer.Stop();
+
+
+                        Console.WriteLine("\nAverage DPS: {0:0.00}\nMax: {1:0.00}\nMin: {2:0.00}", results.Average(), results.Max(), results.Min());
+
+                        Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+                        // Writes to CSV
+                        Console.WriteLine("\nWriting to CSV.");
+                        StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps" + k.ToString() + @".csv");
+                        CsvWriter csvWriter = new CsvWriter(stream);
+
+                        timer.Restart();
+                        foreach (decimal d in results)
+                        {
+                            csvWriter.WriteRecord((double)d);
+                            csvWriter.NextRecord();
+
+                        }
+                        timer.Stop();
+
+                        Console.WriteLine("\nWrite time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+                        stream.Dispose();
+                    }
+                }
+
+                // Single verbose simulation
+                else
+                {
+                    // Instantiates the HTML scraper for Ariyala
+                    AriyalaScraper scraper = new AriyalaScraper();
+
+                    // Asks for an Ariyala code
+                    do
+                    {
+                        Console.WriteLine("\nEnter the Ariyala link or code:");
+
+                        try
+                        {
+                            string ariyalaCode = Console.ReadLine();
+                            singleAttDict = scraper.GetAriyalaSet(ariyalaCode);
+                            validCode = true;
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validCode = false;
+                        }
+                    }
+                    while (!validCode);
+
+                    // Closes the browser
+                    scraper.Dispose();
+
+                    // Asks for type of simulation
+                    do
+                    {
+                        Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
+
+                        try
+                        {
+                            char targetChar = Console.ReadLine()[0];
+
+                            if (targetChar == 'D')
+                            {
+                                simulationParameter = SimulationParameters.DamageTarget;
+                            }
+                            else if (targetChar == 'T')
+                            {
+                                simulationParameter = SimulationParameters.TimeTarget;
+                            }
+                            else
+                            {
+                                throw new InvalidDataException("Invalid type of simulation.");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            simulationParameter = SimulationParameters.Invalid;
+                        }
+                    }
+                    while (simulationParameter == SimulationParameters.Invalid);
+
+                    // Asks for target of simulation (seconds or total damage)
+                    do
+                    {
+                        try
+                        {
+                            if (simulationParameter == SimulationParameters.DamageTarget)
+                            {
+                                Console.WriteLine("\nInput the  total damage target:");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+                            else if (simulationParameter == SimulationParameters.TimeTarget)
+                            {
+                                Console.WriteLine("\nInput the time target (in seconds):");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+
+                            if (simulationTarget <= 0)
+                            {
+                                throw new InvalidDataException("Value must be greater than zero.");
+                            }
+                            validSimulationTarget = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSimulationTarget = false;
+                        }
+                    }
+                    while (!validSimulationTarget);
+
+                    // Main loop
+
+                    decimal result = 0;
+                    Engine engine = new Engine(singleAttDict);
+                    Stopwatch timer = new Stopwatch();
+
+
+                    timer.Start();
+
+                    result = engine.Simulate(simulationParameter, simulationTarget, logData);
+                    engine.Reinitialize();
+
+                    timer.Stop();
+
+
+                    Console.WriteLine("\nDPS: {0:0.00}", result);
+
+                    Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+                    List<string> logStrings = logData.GetLog();
+                    
+                    foreach(string s in logStrings)
+                    {
+                        Console.Write(s);
+                    }
+
                 }
             }
         }

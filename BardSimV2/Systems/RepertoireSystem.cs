@@ -21,7 +21,7 @@ namespace BardSimV2
             this.riverOfBloodComponents = riverOfBloodComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             foreach (BardComponent brdComp in bardComponents)
             {
@@ -48,10 +48,7 @@ namespace BardSimV2
                             }
                         }
 
-                    brdComp.Repertoire = 0;
-
-                    //DEBUG: Console log
-                    Console.WriteLine("        [{0:00.00}] River of Blood activated.", timer);
+                        brdComp.Repertoire = 0;
 
                     }
                 }

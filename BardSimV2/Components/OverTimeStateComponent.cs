@@ -12,8 +12,8 @@ namespace BardSimV2
         private List<DoT> dotList = new List<DoT>();
         private decimal offset;
 
-        public List<DoT> DotList { get => dotList; }
-        public decimal Offset { get => offset; }
+        public List<DoT> DotList { get => dotList; set => dotList = value; }
+        public decimal Offset { get => offset; set => offset = value; }
 
         public OverTimeStateComponent(Entity parent) : base(parent)
         {

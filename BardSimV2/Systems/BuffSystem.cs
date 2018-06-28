@@ -21,7 +21,7 @@ namespace BardSimV2
             this.modifierStateComponents = modifierStateComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             foreach (ModifierStateComponent modStateComp in modifierStateComponents)
             {
@@ -53,6 +53,7 @@ namespace BardSimV2
                 {
                     modStateComp.BuffList.Remove(buff);
                 }
+                buffToBeRemoved = new List<Buff>();
 
                 foreach (Enabler enabler in modStateComp.EnablerList)
                 {
@@ -67,6 +68,7 @@ namespace BardSimV2
                 {
                     modStateComp.EnablerList.Remove(enabler);
                 }
+                enablerToBeRemoved = new List<Enabler>();
 
             }
 

@@ -21,5 +21,10 @@
         {
             return (decimal)u / 1000;
         }
+
+        public static decimal MilliToSeconds(this decimal m)
+        {
+            return (decimal)m / 1000;
+        }
     }
 }

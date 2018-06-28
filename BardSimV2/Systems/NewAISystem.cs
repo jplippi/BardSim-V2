@@ -36,8 +36,11 @@ namespace BardSimV2
         CooldownComponent swCooldownComp;
         TargetComponent targComp;
         BardComponent brdComp;
+        SkillControlComponent skillControlComp;
 
-        public NewAISystem(Entity player, List<BardComponent> bardComponents, List<CooldownComponent> cooldownComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<SkillBaseComponent> skillBaseComponents, List<TargetComponent> targetComponents)
+        int gcdCounter = 0;
+
+        public NewAISystem(Entity player, List<BardComponent> bardComponents, List<CooldownComponent> cooldownComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<SkillBaseComponent> skillBaseComponents, List <SkillControlComponent>skillControlComponents, List<TargetComponent> targetComponents)
         {
             this.player = player;
             heavyShotBaseComp = skillBaseComponents.Find(x => x.Name == SkillName.HeavyShot);
@@ -65,10 +68,11 @@ namespace BardSimV2
             targComp = targetComponents.Find(x => x.Parent == player);
             targOtComp = overtimeStateComponents.Find(x => x.Parent == targComp.Target);
             brdComp = bardComponents.Find(x => x.Parent == player);
+            skillControlComp = skillControlComponents.Find(x => x.Parent == player);
 
         }
 
-        public void Update(decimal timer, Keyboard keyboard, ref int gcdCounter)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             if (timer == NextGCD(heavyShotCdComp))
             {
@@ -84,68 +88,68 @@ namespace BardSimV2
                     switch (gcdCounter)
                     {
                         case 1:
-                            UseKey(keyboard, Keys.Num3);
+                            UseSkill(skillControlComp, SkillName.Stormbite);
                             break;
                         case 2:
-                            UseKey(keyboard, Keys.Num4);
+                            UseSkill(skillControlComp, SkillName.CausticBite);
                             break;
                         case 3:
-                            UseKey(keyboard, Keys.Num2);
+                            UseSkill(skillControlComp, SkillName.StraightShot);
                             break;
                         case 4:
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                             break;
                         case 5:
-                            UseKey(keyboard, Keys.Num1);
+                            UseSkill(skillControlComp, SkillName.HeavyShot);
                             break;
                         case 6:
                         case 7:
                         case 8:
                             if (IsStatusActive(modStateComponent, StatusName.StraighterShot))
                             {
-                                UseKey(keyboard, Keys.F3);
+                                UseSkill(skillControlComp, SkillName.RefulgentArrow);
                             }
                             else
                             {
-                                UseKey(keyboard, Keys.Num1);
+                                UseSkill(skillControlComp, SkillName.HeavyShot);
                             }
                             break;
                         case 9:
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                             break;
                     }
                 }
                 else if (timer < NextGCD(heavyShotCdComp))
                 {
-                    // oGCD: Base structure
+                    // oGCD: opener
                     switch (gcdCounter)
                     {
                         case 1:
                             if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.R);
+                                UseSkill(skillControlComp, SkillName.Bloodletter);
                             }
                             else if (CooldownLeft(rsCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.F1);
+                                UseSkill(skillControlComp, SkillName.RagingStrikes);
                             }
                             else
                             {
-                                ReleaseKeys(keyboard);
+                                ReleaseSkill(skillControlComp);
                             }
                             break;
                         case 2:
                             if (CooldownLeft(wmCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.M1);
+                                UseSkill(skillControlComp, SkillName.TheWanderersMinuet);
                             }
                             else if (CooldownLeft(eaCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.Num6);
+                                UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                             }
                             else
                             {
-                                ReleaseKeys(keyboard);
+                                ReleaseSkill(skillControlComp);
                             }
                             break;
                         case 3:
@@ -155,67 +159,67 @@ namespace BardSimV2
                         case 7:
                             if (Repertoire(brdComp) == 3 && CooldownLeft(ppCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.T);
+                                UseSkill(skillControlComp, SkillName.PitchPerfect);
                             }
                             else if (IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(barrageCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.F2);
+                                UseSkill(skillControlComp, SkillName.Barrage);
                             }
                             else if (CooldownLeft(eaCooldownComp, timer) <= 0 && CooldownLeft(barrageCooldownComp, timer) > 0 && !IsStatusActive(modStateComponent, StatusName.Barrage) && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.Num6);
+                                UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                             }
                             else if (CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.Num7);
+                                UseSkill(skillControlComp, SkillName.Sidewinder);
                             }
                             else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.R);
+                                UseSkill(skillControlComp, SkillName.Bloodletter);
                             }
                             else
                             {
-                                ReleaseKeys(keyboard);
+                                ReleaseSkill(skillControlComp);
                             }
                             break;
                         case 8:
                             if (Repertoire(brdComp) == 3 && CooldownLeft(ppCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.T);
+                                UseSkill(skillControlComp, SkillName.PitchPerfect);
                             }
                             else if (CooldownLeft(eaCooldownComp, timer) <= 0 && CooldownLeft(barrageCooldownComp, timer) > 0 && !IsStatusActive(modStateComponent, StatusName.Barrage) && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.Num6);
+                                UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                             }
                             else if (CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.Num7);
+                                UseSkill(skillControlComp, SkillName.Sidewinder);
                             }
                             else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.R);
+                                UseSkill(skillControlComp, SkillName.Bloodletter);
                             }
                             else
                             {
-                                ReleaseKeys(keyboard);
+                                ReleaseSkill(skillControlComp);
                             }
                             break;
                         case 9:
                             if (Repertoire(brdComp) == 3 && CooldownLeft(ppCooldownComp, timer) <= 0 && NoClip(timer))
                             {
-                                UseKey(keyboard, Keys.T);
+                                UseSkill(skillControlComp, SkillName.PitchPerfect);
                             }
                             else if (CooldownLeft(barrageCooldownComp, timer) <= 0 && !IsStatusActive(modStateComponent, StatusName.StraighterShot))
                             {
-                                UseKey(keyboard, Keys.F2);
+                                UseSkill(skillControlComp, SkillName.Barrage);
                             }
                             else if ((IsStatusActive(modStateComponent, StatusName.Barrage) && !IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(eaCooldownComp, timer) <= 0) || (CooldownLeft(barrageCooldownComp,timer) > 0 && NoClip(timer) && CooldownLeft(eaCooldownComp, timer) <= 0))
                             {
-                                UseKey(keyboard, Keys.Num6);
+                                UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                             }
                             else
                             {
-                                ReleaseKeys(keyboard);
+                                ReleaseSkill(skillControlComp);
                             }
                             break;
                     }
@@ -228,29 +232,29 @@ namespace BardSimV2
                     if (NextGCD(heavyShotCdComp) <= timer)
                     {
                         // GCD: Base structure
-                        if (!IsDoTActive(targOtComp, DotName.StormBite))
+                        if (!IsDoTActive(targOtComp, DotName.Stormbite))
                         {
-                            UseKey(keyboard, Keys.Num3);
+                            UseSkill(skillControlComp, SkillName.CausticBite);
                         }
                         else if (!IsDoTActive(targOtComp, DotName.CausticBite))
                         {
-                            UseKey(keyboard, Keys.Num4);
+                            UseSkill(skillControlComp, SkillName.Stormbite);
                         }
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.StormBite, timer) <= 3m))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.Stormbite, timer) <= 3m))
                         {
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                         }
                         else if (IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(barrageCooldownComp, timer) >= 10m)
                         {
-                            UseKey(keyboard, Keys.F3);
+                            UseSkill(skillControlComp, SkillName.RefulgentArrow);
                         }
                         else if (!IsStatusActive(modStateComponent, StatusName.StraightShot) || TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) <= 5m)
                         {
-                            UseKey(keyboard, Keys.Num2);
+                            UseSkill(skillControlComp, SkillName.StraightShot);
                         }
                         else
                         {
-                            UseKey(keyboard, Keys.Num1);
+                            UseSkill(skillControlComp, SkillName.HeavyShot);
                         }
                     }
                     else if (timer < NextGCD(heavyShotCdComp))
@@ -260,51 +264,51 @@ namespace BardSimV2
                         // Mage's Ballad
                         if (TimeLeftOnSong(brdComp, SongName.TheWanderersMinuet, timer) <= 2m && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M2);
+                            UseSkill(skillControlComp, SkillName.MagesBallad);
                         }
                         // Raging Strikes
                         else if (CooldownLeft(rsCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.F1);
+                            UseSkill(skillControlComp, SkillName.RagingStrikes);
                         }
                         // Pitch Perfect
-                        else if ((Repertoire(brdComp) == 3 || (IsSongActive(brdComp, SongName.TheWanderersMinuet) && TimeLeftOnSong(brdComp, SongName.TheWanderersMinuet, timer) <= 4m)) && CooldownLeft(ppCooldownComp, timer) <= 0 && NoClip(timer))
+                        else if ((Repertoire(brdComp) == 3 || (IsSongActive(brdComp, SongName.TheWanderersMinuet) && TimeLeftOnSong(brdComp, SongName.TheWanderersMinuet, timer) <= 2m)) && CooldownLeft(ppCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.T);
+                            UseSkill(skillControlComp, SkillName.PitchPerfect);
                         }
                         // Barrage
                         else if ((IsStatusActive(modStateComponent, StatusName.StraighterShot) || IsStatusActive(modStateComponent, StatusName.RagingStrikes) && TimeLeftOnStatus(modStateComponent, StatusName.RagingStrikes, timer) <= 3m) && CooldownLeft(barrageCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.F2);
+                            UseSkill(skillControlComp, SkillName.Barrage);
                         }
                         // Bloodletter
                         else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.R);
+                            UseSkill(skillControlComp, SkillName.Bloodletter);
                         }
                         // Empyreal Arrow
                         else if (IsStatusActive(modStateComponent, StatusName.RagingStrikes) && TimeLeftOnStatus(modStateComponent, StatusName.RagingStrikes, timer) <= 15m && IsStatusActive(modStateComponent, StatusName.Barrage) && CooldownLeft(eaCooldownComp, timer) <= 0 /* CAN CLIP */)
                         {
-                            UseKey(keyboard, Keys.Num6);
+                            UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                         }
                         // Empyreal Arrow
                         else if ((IsStatusActive(modStateComponent, StatusName.RagingStrikes) && TimeLeftOnStatus(modStateComponent, StatusName.RagingStrikes, timer) > 15m ) || !IsStatusActive(modStateComponent, StatusName.RagingStrikes) && CooldownLeft(eaCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num6);
+                            UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                         }
                         // Sidewinder
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num7);
+                            UseSkill(skillControlComp, SkillName.Sidewinder);
                         }
                         else
                         {
-                            ReleaseKeys(keyboard);
+                            ReleaseSkill(skillControlComp);
                         }
                     }
                     else
                     {
-                        ReleaseKeys(keyboard);
+                        ReleaseSkill(skillControlComp);
                     }
 
                 }
@@ -313,29 +317,29 @@ namespace BardSimV2
                     if (NextGCD(heavyShotCdComp) <= timer)
                     {
                         // GCD: Base structure
-                        if (!IsDoTActive(targOtComp, DotName.StormBite))
+                        if (!IsDoTActive(targOtComp, DotName.Stormbite))
                         {
-                            UseKey(keyboard, Keys.Num3);
+                            UseSkill(skillControlComp, SkillName.CausticBite);
                         }
                         else if (!IsDoTActive(targOtComp, DotName.CausticBite))
                         {
-                            UseKey(keyboard, Keys.Num4);
+                            UseSkill(skillControlComp, SkillName.Stormbite);
                         }
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.StormBite, timer) <= 3m))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.Stormbite, timer) <= 3m))
                         {
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                         }
                         else if (IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(barrageCooldownComp, timer) >= 10m)
                         {
-                            UseKey(keyboard, Keys.F3);
+                            UseSkill(skillControlComp, SkillName.RefulgentArrow);
                         }
                         else if (!IsStatusActive(modStateComponent, StatusName.StraightShot) || TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) <= 5m)
                         {
-                            UseKey(keyboard, Keys.Num2);
+                            UseSkill(skillControlComp, SkillName.StraightShot);
                         }
                         else
                         {
-                            UseKey(keyboard, Keys.Num1);
+                            UseSkill(skillControlComp, SkillName.HeavyShot);
                         }
                     }
                     else if (timer < NextGCD(heavyShotCdComp))
@@ -345,31 +349,31 @@ namespace BardSimV2
                         // Army's Paeon
                         if (CooldownLeft(apCooldownComp, timer) <= 0 && CooldownLeft(wmCooldownComp, timer) <= 20 && CooldownLeft(mbCooldownComp, timer) <= 50 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M3);
+                            UseSkill(skillControlComp, SkillName.ArmysPaeon);
                         }
                         // Bloodletter
                         else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.R);
+                            UseSkill(skillControlComp, SkillName.Bloodletter);
                         }
                         // Empyreal Arrow
                         else if (CooldownLeft(blCooldownComp, timer) > 3m && CooldownLeft(eaCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num6);
+                            UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                         }
                         // Sidewinder
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num7);
+                            UseSkill(skillControlComp, SkillName.Sidewinder);
                         }
                         else
                         {
-                            ReleaseKeys(keyboard);
+                            ReleaseSkill(skillControlComp);
                         }
                     }
                     else
                     {
-                        ReleaseKeys(keyboard);
+                        ReleaseSkill(skillControlComp);
                     }
                 }
                 else if (TimeLeftOnSong(brdComp, SongName.ArmysPaeon, timer) > 0)
@@ -377,29 +381,29 @@ namespace BardSimV2
                     if (NextGCD(heavyShotCdComp) <= timer)
                     {
                         // GCD: Base structure
-                        if (!IsDoTActive(targOtComp, DotName.StormBite))
+                        if (!IsDoTActive(targOtComp, DotName.Stormbite))
                         {
-                            UseKey(keyboard, Keys.Num3);
+                            UseSkill(skillControlComp, SkillName.CausticBite);
                         }
                         else if (!IsDoTActive(targOtComp, DotName.CausticBite))
                         {
-                            UseKey(keyboard, Keys.Num4);
+                            UseSkill(skillControlComp, SkillName.Stormbite);
                         }
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.StormBite, timer) <= 3m))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.Stormbite, timer) <= 3m))
                         {
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                         }
                         else if (IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(barrageCooldownComp, timer) >= 10m)
                         {
-                            UseKey(keyboard, Keys.F3);
+                            UseSkill(skillControlComp, SkillName.RefulgentArrow);
                         }
-                        else if (!IsStatusActive(modStateComponent, StatusName.StraightShot) || TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) <= 5m || ((TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) - CooldownLeft(rsCooldownComp, timer) - 20m) <= 5m && CooldownLeft(rsCooldownComp, timer) <= 5m))
+                        else if (!IsStatusActive(modStateComponent, StatusName.StraightShot) || TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) <= 5m || ((TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) - CooldownLeft(rsCooldownComp, timer) - 20m) <= ((NextGCD(heavyShotCdComp) - timer + Constants.AnimationLock)) && CooldownLeft(rsCooldownComp, timer) <= ((NextGCD(heavyShotCdComp) - timer + Constants.AnimationLock)) && (CooldownLeft(wmCooldownComp, timer) <= ((NextGCD(heavyShotCdComp) - timer + Constants.AnimationLock)) && CooldownLeft(mbCooldownComp, timer) <= 30 + ((NextGCD(heavyShotCdComp) - timer + Constants.AnimationLock)) && CooldownLeft(apCooldownComp, timer) <= 60 + ((NextGCD(heavyShotCdComp) - timer + Constants.AnimationLock)))))
                         {
-                            UseKey(keyboard, Keys.Num2);
+                            UseSkill(skillControlComp, SkillName.StraightShot);
                         }
                         else
                         {
-                            UseKey(keyboard, Keys.Num1);
+                            UseSkill(skillControlComp, SkillName.HeavyShot);
                         }
                     }
                     else if (timer < NextGCD(heavyShotCdComp))
@@ -409,31 +413,31 @@ namespace BardSimV2
                         // Wanderer's Minuet
                         if (CooldownLeft(wmCooldownComp, timer) <= 0m && CooldownLeft(mbCooldownComp, timer) <= 30 && CooldownLeft(apCooldownComp, timer) <= 60 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M1);
+                            UseSkill(skillControlComp, SkillName.TheWanderersMinuet);
                         }
                         // Bloodletter
                         else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.R);
+                            UseSkill(skillControlComp, SkillName.Bloodletter);
                         }
                         // Empyreal Arrow
                         else if (CooldownLeft(blCooldownComp, timer) > 3m && CooldownLeft(eaCooldownComp, timer) <= 0 && NoClip(timer) && TimeLeftOnSong(brdComp, SongName.ArmysPaeon, timer) > 15)
                         {
-                            UseKey(keyboard, Keys.Num6);
+                            UseSkill(skillControlComp, SkillName.EmpyrealArrow);
                         }
                         // Sidewinder
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num7);
+                            UseSkill(skillControlComp, SkillName.Sidewinder);
                         }
                         else
                         {
-                            ReleaseKeys(keyboard);
+                            ReleaseSkill(skillControlComp);
                         }
                     }
                     else
                     {
-                        ReleaseKeys(keyboard);
+                        ReleaseSkill(skillControlComp);
                     }
                 }
                 else
@@ -441,29 +445,29 @@ namespace BardSimV2
                     if (NextGCD(heavyShotCdComp) <= timer)
                     {
                         // GCD: Base structure
-                        if (!IsDoTActive(targOtComp, DotName.StormBite))
+                        if (!IsDoTActive(targOtComp, DotName.Stormbite))
                         {
-                            UseKey(keyboard, Keys.Num3);
+                            UseSkill(skillControlComp, SkillName.CausticBite);
                         }
                         else if (!IsDoTActive(targOtComp, DotName.CausticBite))
                         {
-                            UseKey(keyboard, Keys.Num4);
+                            UseSkill(skillControlComp, SkillName.Stormbite);
                         }
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.StormBite, timer) <= 3m))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && (TimeLeftOnDot(targOtComp, DotName.CausticBite, timer) <= 3m || TimeLeftOnDot(targOtComp, DotName.Stormbite, timer) <= 3m))
                         {
-                            UseKey(keyboard, Keys.Num5);
+                            UseSkill(skillControlComp, SkillName.IronJaws);
                         }
                         else if (IsStatusActive(modStateComponent, StatusName.StraighterShot) && CooldownLeft(barrageCooldownComp, timer) >= 10m)
                         {
-                            UseKey(keyboard, Keys.F3);
+                            UseSkill(skillControlComp, SkillName.RefulgentArrow);
                         }
                         else if (!IsStatusActive(modStateComponent, StatusName.StraightShot) || TimeLeftOnStatus(modStateComponent, StatusName.StraightShot, timer) <= 5m)
                         {
-                            UseKey(keyboard, Keys.Num2);
+                            UseSkill(skillControlComp, SkillName.StraightShot);
                         }
                         else
                         {
-                            UseKey(keyboard, Keys.Num1);
+                            UseSkill(skillControlComp, SkillName.HeavyShot);
                         }
                     }
                     else if (timer < NextGCD(heavyShotCdComp))
@@ -472,62 +476,62 @@ namespace BardSimV2
                         // The Wanderer's Minuet
                         if(IsSongActive(brdComp, SongName.None) && CooldownLeft(wmCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M1);
+                            UseSkill(skillControlComp, SkillName.TheWanderersMinuet);
                         }
                         // Mage's Ballad
                         else if (IsSongActive(brdComp, SongName.None) && CooldownLeft(mbCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M2);
+                            UseSkill(skillControlComp, SkillName.MagesBallad);
                         }
                         // Army's Paeon
                         else if (IsSongActive(brdComp, SongName.None) && CooldownLeft(apCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.M3);
+                            UseSkill(skillControlComp, SkillName.ArmysPaeon);
                         }
                         // Bloodletter
                         else if (CooldownLeft(blCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.R);
+                            UseSkill(skillControlComp, SkillName.Bloodletter);
                         }
                         // Sidewinder
-                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.StormBite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
+                        else if (IsDoTActive(targOtComp, DotName.CausticBite) && IsDoTActive(targOtComp, DotName.Stormbite) && CooldownLeft(swCooldownComp, timer) <= 0 && NoClip(timer))
                         {
-                            UseKey(keyboard, Keys.Num7);
+                            UseSkill(skillControlComp, SkillName.Sidewinder);
                         }
                         else
                         {
-                            ReleaseKeys(keyboard);
+                            ReleaseSkill(skillControlComp);
                         }
                     }
                     else
                     {
-                        ReleaseKeys(keyboard);
+                        ReleaseSkill(skillControlComp);
                     }
                 }
             }
         }
 
-        void UseKey(Keyboard keyboard, Keys key)
+        void UseSkill(SkillControlComponent skillControlComp, SkillName skill)
         {
 
-            foreach (Keys k in Enum.GetValues(typeof(Keys)))
+            foreach (SkillName s in skillControlComp.SkillControlList)
             {
-                if (k == key)
+                if (s == skill)
                 {
-                    keyboard.keysDictionary[k] = true;
+                    skillControlComp.SkillControlDictionary[s] = true;
                 }
                 else
                 {
-                    keyboard.keysDictionary[k] = false;
+                    skillControlComp.SkillControlDictionary[s] = false;
                 }
             }
         }
 
-        void ReleaseKeys(Keyboard keyboard)
+        void ReleaseSkill(SkillControlComponent skillControlComp)
         {
-            foreach (Keys k in Enum.GetValues(typeof(Keys)))
+            foreach (SkillName s in skillControlComp.SkillControlList)
             {
-                 keyboard.keysDictionary[k] = false;
+                skillControlComp.SkillControlDictionary[s] = false;
             }
         }
 
