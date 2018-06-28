@@ -9,7 +9,7 @@ namespace BardSimV2
     enum SimulationType
     {
         Invalid,
-        SingleRun,
-        MultipleRuns
+        Verbose,
+        Multiple
     }
 }

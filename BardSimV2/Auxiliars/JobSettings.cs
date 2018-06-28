@@ -16,5 +16,35 @@ namespace BardSimV2
             AttributeType.SkillSpeed,
             AttributeType.Vitality
         };
+
+        public readonly static List<SkillName> brdSkillNames = new List<SkillName>
+        {
+            SkillName.ArmysPaeon,
+            SkillName.Barrage,
+            SkillName.BattleVoice,
+            SkillName.Bloodletter,
+            SkillName.CausticBite,
+            SkillName.EmpyrealArrow,
+            SkillName.FoeRequiem,
+            SkillName.HeavyShot,
+            SkillName.IronJaws,
+            SkillName.MagesBallad,
+            SkillName.MiserysEnd,
+            SkillName.NaturesMinne,
+            SkillName.PitchPerfect,
+            SkillName.QuickNock,
+            SkillName.RagingStrikes,
+            SkillName.RainOfDeath,
+            SkillName.RefulgentArrow,
+            SkillName.RepellingShot,
+            SkillName.Sidewinder,
+            SkillName.Stormbite,
+            SkillName.StraightShot,
+            SkillName.TheWanderersMinuet,
+            SkillName.TheWardensPaean,
+            SkillName.Troubadour,
+            SkillName.VenomousBite,
+            SkillName.Windbite
+        };
     }
 }

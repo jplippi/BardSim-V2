@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    enum DotName
+    enum LogActionType
     {
-        //Bard
-        VenomousBite,
-        WindBite,
-        CausticBite,
-        Stormbite
+        GCD,
+        oGCD,
+        DoT,
+        AutoAttack
     }
 }

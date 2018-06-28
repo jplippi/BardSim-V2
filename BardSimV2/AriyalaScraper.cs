@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BardSimV2
 {
-    class AriyalaScraper
+    class AriyalaScraper : IDisposable
     {
         private ChromeOptions options;
         private ChromeDriverService service;
@@ -130,9 +130,6 @@ namespace BardSimV2
             }
             while (!validWeapDelay);
 
-            driver.Dispose();
-            service.Dispose();
-
             return attributesFromAriyala;
         }
 
@@ -148,5 +145,10 @@ namespace BardSimV2
             return true;
         }
 
+        public void Dispose()
+        {
+            driver.Dispose();
+            service.Dispose();
+        }
     }
 }

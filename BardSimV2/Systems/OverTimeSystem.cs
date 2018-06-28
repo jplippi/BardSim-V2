@@ -30,7 +30,7 @@ namespace BardSimV2
             this.riverOfBloodComponents = riverOfBloodComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             foreach (OverTimeStateComponent otStateComp in overtimeStateComponents)
             {
@@ -47,54 +47,63 @@ namespace BardSimV2
                     else
                     {
                         // Activates if not active
-                        dot.IsActive = true;
-
-                        // Executes the damage
-                        if(((timer - otStateComp.Offset) % (3m) == 0) && (timer - dot.LastTick >= 3m))
+                        if (!dot.IsActive)
                         {
-
-                            decimal critMod = 1;
-                            decimal dhitMod = 1;
-
-                            bool hasCrit = false;
-
-                            if( (int)(dot.UsersChancesDictionary[AttributeType.CriticalHitRate] * 10) > rng.Next(0, 1000))
-                            {
-                                critMod = dot.UsersModifiersDictionary[DamageModifierType.CriticalModifier];
-
-                                // For repertoire
-                                hasCrit = true;
-                            }
-
-                            if( (int)(dot.UsersChancesDictionary[AttributeType.DirectHitRate] * 10) > rng.Next(0, 1000))
-                            {
-                                dhitMod = dot.UsersModifiersDictionary[DamageModifierType.DirectModifier];
-                            }
-
-                            decimal dotTick = CombatFormulas.DoTDamage
-                                (
-                                    CombatFormulas.PotencyMod(dot.Potency),
-                                    dot.UsersModifiersDictionary[DamageModifierType.WeaponDamageModifier],
-                                    dot.UsersModifiersDictionary[DamageModifierType.AttackPowerModifier],
-                                    dot.UsersModifiersDictionary[DamageModifierType.DeterminationModifier],
-                                    dot.UsersModifiersDictionary[DamageModifierType.TenacityModifier],
-                                    dot.UsersModifiersDictionary[DamageModifierType.TraitModifier],
-                                    dot.UsersModifiersDictionary[DamageModifierType.SpeedModifier],
-                                    critMod,
-                                    dhitMod,
-                                    dot.UsersBuffList
-                                );
-                            healthComp.DamageTaken += dotTick;
-
+                            dot.IsActive = true;
                             dot.LastTick = timer;
-
-                            // Handles repertoire
-                            if(dot.Name == DotName.CausticBite || dot.Name == DotName.StormBite)
+                        }
+                        else
+                        {
+                            // Executes the damage
+                            if(((timer - otStateComp.Offset) % (3m) == 0) && (timer - dot.LastTick >= 3m))
                             {
-                                // Gets the BardComponent of the entity that applied the over time effect
-                                foreach (BardComponent brdComp in bardComponents.FindAll(x => x.Parent == dot.UserSource))
+
+                                decimal critMod = 1;
+                                decimal dhitMod = 1;
+
+                                bool hasCrit = false;
+
+                                if( (int)(dot.UsersChancesDictionary[AttributeType.CriticalHitRate] * 10) > rng.Next(0, 1000))
                                 {
-                                    if (hasCrit)
+                                    critMod = dot.UsersModifiersDictionary[DamageModifierType.CriticalModifier];
+
+                                    // For repertoire
+                                    hasCrit = true;
+                                }
+
+                                if( (int)(dot.UsersChancesDictionary[AttributeType.DirectHitRate] * 10) > rng.Next(0, 1000))
+                                {
+                                    dhitMod = dot.UsersModifiersDictionary[DamageModifierType.DirectModifier];
+                                }
+
+                                decimal dotTick = CombatFormulas.DoTDamage
+                                    (
+                                        CombatFormulas.PotencyMod(dot.Potency),
+                                        dot.UsersModifiersDictionary[DamageModifierType.WeaponDamageModifier],
+                                        dot.UsersModifiersDictionary[DamageModifierType.AttackPowerModifier],
+                                        dot.UsersModifiersDictionary[DamageModifierType.DeterminationModifier],
+                                        dot.UsersModifiersDictionary[DamageModifierType.TenacityModifier],
+                                        dot.UsersModifiersDictionary[DamageModifierType.TraitModifier],
+                                        dot.UsersModifiersDictionary[DamageModifierType.SpeedModifier],
+                                        critMod,
+                                        dhitMod,
+                                        dot.UsersBuffList
+                                    );
+                                healthComp.DamageTaken += dotTick;
+
+                                // Adds the damage to the log, if it exists
+                                if (log != null)
+                                {
+                                    log.Log.Rows.Add(LogActionType.DoT, timer, dot.Name.ToString(), dotTick, critMod > 1, dhitMod > 1, false);
+                                }
+
+                                dot.LastTick = timer;
+
+                                // Handles repertoire
+                                if((dot.Name == DotName.CausticBite || dot.Name == DotName.Stormbite) && hasCrit)
+                                {
+                                    // Gets the BardComponent of the entity that applied the over time effect
+                                    foreach (BardComponent brdComp in bardComponents.FindAll(x => x.Parent == dot.UserSource))
                                     {
                                         if(brdComp.Song == SongName.TheWanderersMinuet && brdComp.Repertoire < 3)
                                         {

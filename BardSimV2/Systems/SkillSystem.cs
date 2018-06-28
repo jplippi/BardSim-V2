@@ -20,11 +20,11 @@ namespace BardSimV2
         List<GenericStatusEffectComponent> genericStatusEffectComponents;
         List<HealthComponent> healthComponents;
         List<IronJawsEffectComponent> ironJawsEffectComponents;
-        List<KeyMappingComponent> keyMappingComponents;
         List<ModifierStateComponent> modifierStateComponents;
         List<OverTimeStateComponent> overtimeStateComponents;
         List<PotencyComponent> potencyComponents;
         List<SkillBaseComponent> skillBaseComponents;
+        List<SkillControlComponent> skillControlComponents;
         List<SongComponent> songComponents;
         List<StatusEffectComponent> statusEffectComponents;
         List<StraighterShotEffectComponent> straighterShotEffectComponents;
@@ -36,7 +36,7 @@ namespace BardSimV2
         Random rng;
 
 
-        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<ConditionalPotencyComponent> conditionalPotencyComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<KeyMappingComponent> keyMappingComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents, List<UsesEnablerComponent> usesEnablerComponents, List<UsesRepertoireComponent> usesRepertoireComponents)
+        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<ConditionalPotencyComponent> conditionalPotencyComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SkillControlComponent> skillControlComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents, List<UsesEnablerComponent> usesEnablerComponents, List<UsesRepertoireComponent> usesRepertoireComponents)
         {
             this.animationLockComponents = animationLockComponents;
             this.attributesComponents = attributesComponents;
@@ -48,11 +48,11 @@ namespace BardSimV2
             this.genericStatusEffectComponents = genericStatusEffectComponents;
             this.healthComponents = healthComponents;
             this.ironJawsEffectComponents = ironJawsEffectComponents;
-            this.keyMappingComponents = keyMappingComponents;
             this.modifierStateComponents = modifierStateComponents;
             this.overtimeStateComponents = overtimeStateComponents;
             this.potencyComponents = potencyComponents;
             this.skillBaseComponents = skillBaseComponents;
+            this.skillControlComponents = skillControlComponents;
             this.songComponents = songComponents;
             this.statusEffectComponents = statusEffectComponents;
             this.straighterShotEffectComponents = straighterShotEffectComponents;
@@ -63,24 +63,24 @@ namespace BardSimV2
             rng = new Random();
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
-            foreach ( KeyMappingComponent keyMapComp in keyMappingComponents)
+            foreach (SkillControlComponent skillControlComp in skillControlComponents)
             {
                 // User
-                Entity entity = keyMapComp.Parent;
+                Entity entity = skillControlComp.Parent;
 
                 AnimationLockComponent animLockComp = animationLockComponents.Find(x => x.Parent == entity);
 
                 if (timer - animLockComp.Start >= Constants.AnimationLock)
                 {
-                    foreach (KeyBind keyBind in keyMapComp.KeyBinds )
+                    foreach (SkillName s in skillControlComp.SkillControlList)
                     {
-                        if (keyBind.IsActive)
+                        if (skillControlComp.SkillControlDictionary[s] == true)
                         {
 
                             // Skill components
-                            SkillBaseComponent skillBaseComp = skillBaseComponents.Find(x => x.Name == keyBind.Command);
+                            SkillBaseComponent skillBaseComp = skillBaseComponents.Find(x => x.Name == s);
 
                             if(skillBaseComp != null)
                             {
@@ -324,6 +324,33 @@ namespace BardSimV2
                                             targHealthComp.Amount -= totalDamage1;
                                             targHealthComp.DamageTaken += totalDamage1;
 
+                                            // Adds the damage to the log, if it exists
+                                            if(log != null)
+                                            {
+                                                // If skill is a GCD
+                                                if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.IronJaws || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.VenomousBite || skillBaseComp.Name == SkillName.Windbite)
+                                                {
+                                                    log.Log.Rows.Add(LogActionType.GCD, timer, skillBaseComp.Name.ToString(), totalDamage1, critMod1 > 1, dhitMod1 > 1, false);
+
+                                                    if(skillBaseComp.Type == SkillType.Weaponskill && barrage != null)
+                                                    {
+                                                        log.Log.Rows.Add(LogActionType.GCD, timer, skillBaseComp.Name.ToString(), totalDamage2, critMod2 > 1, dhitMod2 > 1, true);
+                                                        log.Log.Rows.Add(LogActionType.GCD, timer, skillBaseComp.Name.ToString(), totalDamage3, critMod3 > 1, dhitMod3 > 1, true);
+                                                    }
+                                                }
+                                                // Otherwise, it's an oGCD
+                                                else
+                                                {
+                                                    log.Log.Rows.Add(LogActionType.oGCD, timer, skillBaseComp.Name.ToString(), totalDamage1, critMod1 > 1, dhitMod1 > 1, false);
+
+                                                    if (skillBaseComp.Type == SkillType.Weaponskill && barrage != null)
+                                                    {
+                                                        log.Log.Rows.Add(LogActionType.oGCD, timer, skillBaseComp.Name.ToString(), totalDamage2, critMod2 > 1, dhitMod2 > 1, true);
+                                                        log.Log.Rows.Add(LogActionType.oGCD, timer, skillBaseComp.Name.ToString(), totalDamage3, critMod3 > 1, dhitMod3 > 1, true);
+                                                    }
+                                                }
+                                            }
+
                                             // Logic for over time effects
                                             foreach (DotEffectComponent dotEffectComp in dotEffectComponents.FindAll(x => x.Parent == skill))
                                             {
@@ -482,9 +509,9 @@ namespace BardSimV2
                                         }
 
                                         // Logic for cooldown
-                                        foreach (Entity s in cdComp.SharedCooldownList)
+                                        foreach (Entity sharedSkill in cdComp.SharedCooldownList)
                                         {
-                                            CooldownComponent c = cooldownComponents.Find(x => x.Parent == s);
+                                            CooldownComponent c = cooldownComponents.Find(x => x.Parent == sharedSkill);
                                             c.Start = timer;
                                             c.UsableAt = c.Start + recast;
 

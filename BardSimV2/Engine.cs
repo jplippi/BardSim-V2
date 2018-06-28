@@ -55,12 +55,12 @@ namespace BardSimV2
         List<GenericStatusEffectComponent> genericStatusEffectComponents = new List<GenericStatusEffectComponent>();
         List<HealthComponent> healthComponents = new List<HealthComponent>();
         List<IronJawsEffectComponent> ironJawsEffectComponents = new List<IronJawsEffectComponent>();
-        List<KeyMappingComponent> keyMappingComponents = new List<KeyMappingComponent>();
         List<ModifierStateComponent> modifierStateComponents = new List<ModifierStateComponent>();
         List<OverTimeStateComponent> overtimeStateComponents = new List<OverTimeStateComponent>();
         List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
         List<RiverOfBloodComponent> riverOfBloodComponents = new List<RiverOfBloodComponent>();
         List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
+        List<SkillControlComponent> skillControlComponents = new List<SkillControlComponent>();
         List<SongComponent> songComponents = new List<SongComponent>();
         List<StatusEffectComponent> statusEffectComponents = new List<StatusEffectComponent>();
         List<StraighterShotEffectComponent> straighterShotEffectComponents = new List<StraighterShotEffectComponent>();
@@ -147,7 +147,7 @@ namespace BardSimV2
                 new SkillBaseComponent(stormBite, SkillName.Stormbite, SkillType.Weaponskill),
                 new CooldownComponent(stormBite, 2.5m, gcdSkillList),
                 new PotencyComponent(stormBite, 120),
-                new DotEffectComponent(stormBite, DotName.StormBite, 30m, 55)
+                new DotEffectComponent(stormBite, DotName.Stormbite, 30m, 55)
             });
 
             ironJaws.AddComponents(new List<Component>
@@ -266,24 +266,7 @@ namespace BardSimV2
                 new AnimationLockComponent(player),
                 new AutoAttackComponent(player, 100),
                 new RiverOfBloodComponent(player, riverOfBloodSkillList),
-                new KeyMappingComponent(player, new List<KeyBind>
-                {
-                    new KeyBind(SkillName.HeavyShot, Keys.Num1),
-                    new KeyBind(SkillName.StraightShot, Keys.Num2),
-                    new KeyBind(SkillName.CausticBite, Keys.Num4),
-                    new KeyBind(SkillName.Stormbite, Keys.Num3),
-                    new KeyBind(SkillName.IronJaws, Keys.Num5),
-                    new KeyBind(SkillName.RefulgentArrow, Keys.F3),
-                    new KeyBind(SkillName.Bloodletter, Keys.R),
-                    new KeyBind(SkillName.EmpyrealArrow, Keys.Num6),
-                    new KeyBind(SkillName.PitchPerfect, Keys.T),
-                    new KeyBind(SkillName.Sidewinder, Keys.Num7),
-                    new KeyBind(SkillName.RagingStrikes, Keys.F1),
-                    new KeyBind(SkillName.Barrage, Keys.F2),
-                    new KeyBind(SkillName.TheWanderersMinuet, Keys.M1),
-                    new KeyBind(SkillName.MagesBallad, Keys.M2),
-                    new KeyBind(SkillName.ArmysPaeon, Keys.M3)
-                }),
+                new SkillControlComponent(player, Job.Bard),
                 // DEBUG: Setting enemy as player's target
                 new TargetComponent(player, enemy)
             });
@@ -362,10 +345,6 @@ namespace BardSimV2
                     {
                         ironJawsEffectComponents.Add((IronJawsEffectComponent)c);
                     }
-                    else if (c is KeyMappingComponent)
-                    {
-                        keyMappingComponents.Add((KeyMappingComponent)c);
-                    }
                     else if (c is ModifierStateComponent)
                     {
                         modifierStateComponents.Add((ModifierStateComponent)c);
@@ -385,6 +364,10 @@ namespace BardSimV2
                     else if (c is SkillBaseComponent)
                     {
                         skillBaseComponents.Add((SkillBaseComponent)c);
+                    }
+                    else if (c is SkillControlComponent)
+                    {
+                        skillControlComponents.Add((SkillControlComponent)c);
                     }
                     else if (c is SongComponent)
                     {
@@ -419,13 +402,12 @@ namespace BardSimV2
 
             // Initializing systems
             //_systems.Add(new AIDebugSystem(player, bardComponents, cooldownComponents, modifierStateComponents, overtimeStateComponents, skillBaseComponents, targetComponents));
-            _systems.Add(new NewAISystem(player, bardComponents, cooldownComponents, modifierStateComponents, overtimeStateComponents, skillBaseComponents, targetComponents));
-            _systems.Add(new KeystrokeListenerSystem(keyMappingComponents));
+            _systems.Add(new NewAISystem(player, bardComponents, cooldownComponents, modifierStateComponents, overtimeStateComponents, skillBaseComponents, skillControlComponents, targetComponents));
             _systems.Add(new OverTimeSystem(bardComponents, cooldownComponents, healthComponents, modifierStateComponents, overtimeStateComponents, riverOfBloodComponents));
             _systems.Add(new RepertoireSystem(bardComponents, cooldownComponents, modifierStateComponents, riverOfBloodComponents));
             _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
             _systems.Add(new AutoAttackSystem(attributesComponents, autoAttackComponents, bardComponents, healthComponents, modifierStateComponents, targetComponents));
-            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, keyMappingComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
+            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, skillControlComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
         }
 
         public decimal Simulate (SimulationParameters target, decimal input)
@@ -439,7 +421,7 @@ namespace BardSimV2
                     {
                         foreach (ISystem sys in _systems)
                         {
-                            sys.Update(fastTimer, keyboard);
+                            sys.Update(fastTimer, keyboard, null);
                         };
                         fastTimer += 0.01m;
                     }
@@ -456,7 +438,7 @@ namespace BardSimV2
                     {
                         foreach (ISystem sys in _systems)
                         {
-                            sys.Update(fastTimer, keyboard);
+                            sys.Update(fastTimer, keyboard, null);
                         };
                         fastTimer += 0.01m;
                     }
@@ -464,6 +446,45 @@ namespace BardSimV2
                     return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
 
                 }
+            return -1;
+        }
+
+        public decimal Simulate(SimulationParameters target, decimal input, LogData log)
+        {
+            if (target == SimulationParameters.TimeTarget)
+            {
+                // Starts the timer
+                decimal fastTimer = 0;
+
+                while (fastTimer < input)
+                {
+                    foreach (ISystem sys in _systems)
+                    {
+                        sys.Update(fastTimer, keyboard, log);
+                    };
+                    fastTimer += 0.01m;
+                }
+
+                return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
+
+            }
+            else if (target == SimulationParameters.DamageTarget)
+            {
+                // Starts the timer
+                decimal fastTimer = 0;
+
+                while (healthComponents.Find(x => x.Parent == enemy).DamageTaken < input)
+                {
+                    foreach (ISystem sys in _systems)
+                    {
+                        sys.Update(fastTimer, keyboard, log);
+                    };
+                    fastTimer += 0.01m;
+                }
+
+                return healthComponents.Find(x => x.Parent == enemy).DamageTaken / fastTimer;
+
+            }
             return -1;
         }
 
@@ -497,11 +518,11 @@ namespace BardSimV2
                 c.Amount = 0;
                 c.DamageTaken = 0;
             }
-            foreach (KeyMappingComponent c in keyMappingComponents)
+            foreach (SkillControlComponent c in skillControlComponents)
             {
-                foreach (KeyBind k in c.KeyBinds)
+                foreach (SkillName s in c.SkillControlList)
                 {
-                    k.IsActive = false;
+                    c.SkillControlDictionary[s] = false;
                 }
             }
             foreach (ModifierStateComponent c in modifierStateComponents)

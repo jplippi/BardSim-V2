@@ -15,7 +15,6 @@ C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\System.Threading.Overl
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\System.Xml.XPath.XDocument.dll
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\System.Collections.Immutable.dll
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\System.Collections.Immutable.xml
-C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csprojResolveAssemblyReference.cache
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csproj.CoreCompileInputs.cache
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.exe
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.pdb
@@ -55,3 +54,4 @@ C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\NHtmlUnit.dll
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csproj.CopyComplete
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\CsvHelper.dll
 C:\Users\jplip\source\repos\BardSimV2\BardSimV2\bin\Debug\CsvHelper.xml
+C:\Users\jplip\source\repos\BardSimV2\BardSimV2\obj\Debug\BardSimV2.csprojResolveAssemblyReference.cache

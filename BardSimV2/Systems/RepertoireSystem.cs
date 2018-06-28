@@ -21,7 +21,7 @@ namespace BardSimV2
             this.riverOfBloodComponents = riverOfBloodComponents;
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             foreach (BardComponent brdComp in bardComponents)
             {

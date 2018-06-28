@@ -28,7 +28,7 @@ namespace BardSimV2
         }
 
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
             foreach (AutoAttackComponent aaComp in autoAttackComponents)
             {
@@ -118,6 +118,12 @@ namespace BardSimV2
                     // Inflicts damage on target's health component
                     targHealthComp.Amount -= totalDamage;
                     targHealthComp.DamageTaken += totalDamage;
+
+                    // Adds the damage to the log, if it exists
+                    if (log != null)
+                    {
+                            log.Log.Rows.Add(LogActionType.AutoAttack, timer, "Auto attack", totalDamage, critMod > 1, dhitMod > 1, false);
+                    }
 
                     // Sets next auto
                     aaComp.NextAuto += attComp.AttributesDictionary[AttributeType.WeaponDelay];

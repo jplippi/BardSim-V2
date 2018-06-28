@@ -71,11 +71,11 @@ namespace BardSimV2
 
         }
 
-        public void Update(decimal timer, Keyboard keyboard)
+        public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
                if (!(timer <= NextGCD(heavyShotCdComp) - Constants.AnimationLock) || NextGCD(heavyShotCdComp) <= 0m)
             {
-                if (targOtComp.DotList.Find(x => x.Name == DotName.StormBite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null)
+                if (targOtComp.DotList.Find(x => x.Name == DotName.Stormbite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.UserSource == player && x.Duration - timer + x.Start < 4m) != null)
                 {
                     UseKey(keyboard, Keys.Num5);
                 }
@@ -87,7 +87,7 @@ namespace BardSimV2
                 {
                     UseKey(keyboard, Keys.Num2);
                 }
-                else if (targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.StormBite && x.UserSource == player) == null)
+                else if (targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.Stormbite && x.UserSource == player) == null)
                 {
                     UseKey(keyboard, Keys.Num3);
                 }
@@ -131,7 +131,7 @@ namespace BardSimV2
                     onOpener = false;
                     UseKey(keyboard, Keys.M1);
                 }
-                else if (modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && barrageCooldownComp.UsableAt <= timer && !(targOtComp.DotList.Find(x => x.Name == DotName.StormBite && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.Duration - timer + x.Start < 4m) != null))
+                else if (modStateComponent.EnablerList.Find(x => x.Name == StatusName.StraighterShot) != null && barrageCooldownComp.UsableAt <= timer && !(targOtComp.DotList.Find(x => x.Name == DotName.Stormbite && x.Duration - timer + x.Start < 4m) != null || targOtComp.DotList.Find(x => x.Name == DotName.CausticBite && x.Duration - timer + x.Start < 4m) != null))
                 {
                     UseKey(keyboard, Keys.F2);
                 }
@@ -139,7 +139,7 @@ namespace BardSimV2
                 {
                     UseKey(keyboard, Keys.Num6);
                 }
-                else if ((targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.StormBite && x.UserSource == player) != null && targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.CausticBite && x.UserSource == player) != null) && swCooldownComp.UsableAt <= timer)
+                else if ((targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.Stormbite && x.UserSource == player) != null && targOtComp.DotList.Find(x => x.IsActive == true && x.Name == DotName.CausticBite && x.UserSource == player) != null) && swCooldownComp.UsableAt <= timer)
                 {
                     UseKey(keyboard, Keys.Num7);
                 }

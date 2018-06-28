@@ -149,6 +149,7 @@
     <Compile Include="Auxiliars\BuffsDictionary.cs" />
     <Compile Include="Auxiliars\AttributesDictionary.cs" />
     <Compile Include="Auxiliars\JobSettings.cs" />
+    <Compile Include="Auxiliars\LogData.cs" />
     <Compile Include="Components\ConditionalPotencyComponent.cs" />
     <Compile Include="Components\UsesEnablerComponent.cs" />
     <Compile Include="Components\UsesRepertoireComponent.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Auxiliars\Enabler.cs" />
     <Compile Include="Components\StraighterShotEffectComponent.cs" />
     <Compile Include="Engine.cs" />
+    <Compile Include="Enumerations\LogActionType.cs" />
     <Compile Include="Enumerations\SongName.cs" />
     <Compile Include="Components\DotEffectComponent.cs" />
     <Compile Include="Enumerations\DotName.cs" />
@@ -192,13 +194,12 @@
     <Compile Include="Components\BardComponent.cs" />
     <Compile Include="Enumerations\Job.cs" />
     <Compile Include="Enumerations\Keys.cs" />
-    <Compile Include="Systems\KeystrokeListenerSystem.cs" />
     <Compile Include="Auxiliars\KeyBind.cs" />
     <Compile Include="Auxiliars\Keyboard.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Systems\ISystem.cs" />
-    <Compile Include="Components\KeyMappingComponent.cs" />
+    <Compile Include="Components\SkillControlComponent.cs" />
     <Compile Include="Enumerations\MainAttributes.cs" />
     <Compile Include="Components\PotencyComponent.cs" />
     <Compile Include="Program.cs" />

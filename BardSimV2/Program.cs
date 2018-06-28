@@ -24,8 +24,7 @@ namespace BardSimV2
         {
             while (true)
             {
-
-                // Asks for run mode and duration
+                LogData logData = new LogData();
                 DataTable dpsTable = new DataTable("DPS");
                 List<string> ariyalaSets = new List<string>();
 
@@ -33,46 +32,237 @@ namespace BardSimV2
                 int numberOfRuns = 0;
                 decimal simulationTarget = 0;
                 List<AttributesDictionary> listOfAttDicts = new List<AttributesDictionary>();
+                AttributesDictionary singleAttDict = new AttributesDictionary();
 
                 bool validSetNumber = true;
                 bool validCode = true;
                 bool validRunsNumber = true;
                 bool validSimulationTarget = true;
                 SimulationParameters simulationParameter = SimulationParameters.Invalid;
+                SimulationType simulationType = SimulationType.Invalid;
 
+                // Asks for type of simulation
                 do
                 {
-                    Console.WriteLine("\nInput the number of gearsets:");
+                    Console.WriteLine("\nEnter 'V' for a single verbose run, or 'M' for multiple runs:");
 
                     try
                     {
-                        int.TryParse(Console.ReadLine(), out numberOfSets);
-                        if (numberOfSets <= 0)
+                        char typeChar = Console.ReadLine()[0];
+
+                        if (typeChar == 'V')
                         {
-                            throw new InvalidDataException("Number must be greater than zero.");
+                            simulationType = SimulationType.Verbose;
                         }
-                        validSetNumber = true;
+                        else if (typeChar == 'M')
+                        {
+                            simulationType = SimulationType.Multiple;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("Invalid type of simulation.");
+                        }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
-                        validSetNumber = false;
+                        simulationType = SimulationType.Invalid;
                     }
                 }
-                while (!validSetNumber);
+                while (simulationType == SimulationType.Invalid);
 
-                AriyalaScraper scraper = new AriyalaScraper();
-
-                for ( int i = 0; i < numberOfSets; i++)
+                // Multiple simulation
+                if(simulationType == SimulationType.Multiple)
                 {
+                    // Asks for number of gearsets
                     do
                     {
-                        Console.WriteLine("\nEnter the Ariyala link or code #{0}:", i + 1);
+                        Console.WriteLine("\nInput the number of gearsets:");
+
+                        try
+                        {
+                            int.TryParse(Console.ReadLine(), out numberOfSets);
+                            if (numberOfSets <= 0)
+                            {
+                                throw new InvalidDataException("Number must be greater than zero.");
+                            }
+                            validSetNumber = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSetNumber = false;
+                        }
+                    }
+                    while (!validSetNumber);
+
+                    // Instantiates the HTML scraper for Ariyala
+                    AriyalaScraper scraper = new AriyalaScraper();
+
+                    // Iterates over each gearset
+                    for (int i = 0; i < numberOfSets; i++)
+                    {
+                        do
+                        {
+                            Console.WriteLine("\nEnter the Ariyala link or code #{0}:", i + 1);
+
+                            try
+                            {
+                                string ariyalaCode = Console.ReadLine();
+                                listOfAttDicts.Add(scraper.GetAriyalaSet(ariyalaCode));
+                                validCode = true;
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                                validCode = false;
+                            }
+                        }
+                        while (!validCode);
+                    }
+
+                    // Closes the browser
+                    scraper.Dispose();
+
+                    // Asks for number of simulations
+                    do
+                    {
+                        Console.WriteLine("\nInput the number of simulations:");
+
+                        try
+                        {
+                            int.TryParse(Console.ReadLine(), out numberOfRuns);
+                            if (numberOfRuns <= 0)
+                            {
+                                throw new InvalidDataException("Number must be greater than zero.");
+                            }
+                            validRunsNumber = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validRunsNumber = false;
+                        }
+                    }
+                    while (!validRunsNumber);
+
+                    // Asks for type of simulation
+                    do
+                    {
+                        Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
+
+                        try
+                        {
+                            char targetChar = Console.ReadLine()[0];
+
+                            if (targetChar == 'D')
+                            {
+                                simulationParameter = SimulationParameters.DamageTarget;
+                            }
+                            else if (targetChar == 'T')
+                            {
+                                simulationParameter = SimulationParameters.TimeTarget;
+                            }
+                            else
+                            {
+                                throw new InvalidDataException("Invalid type of simulation.");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            simulationParameter = SimulationParameters.Invalid;
+                        }
+                    }
+                    while (simulationParameter == SimulationParameters.Invalid);
+
+                    // Asks for target of simulation (seconds or total damage)
+                    do
+                    {
+                        try
+                        {
+                            if (simulationParameter == SimulationParameters.DamageTarget)
+                            {
+                                Console.WriteLine("\nInput the  total damage target:");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+                            else if (simulationParameter == SimulationParameters.TimeTarget)
+                            {
+                                Console.WriteLine("\nInput the time target (in seconds):");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+
+                            if (simulationTarget <= 0)
+                            {
+                                throw new InvalidDataException("Value must be greater than zero.");
+                            }
+                            validSimulationTarget = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSimulationTarget = false;
+                        }
+                    }
+                    while (!validSimulationTarget);
+
+                    // Main loop
+                    for (int k = 0; k < numberOfSets; k++)
+                    {
+                        List<decimal> results = new List<decimal>();
+                        Engine engine = new Engine(listOfAttDicts[k]);
+                        Stopwatch timer = new Stopwatch();
+
+                        // Simulates each gearset
+                        timer.Start();
+                        for (int i = 0; i < numberOfRuns; i++)
+                        {
+                            results.Add(engine.Simulate(simulationParameter, simulationTarget));
+                            engine.Reinitialize();
+                        }
+                        timer.Stop();
+
+
+                        Console.WriteLine("\nAverage DPS: {0:0.00}\nMax: {1:0.00}\nMin: {2:0.00}", results.Average(), results.Max(), results.Min());
+
+                        Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+                        // Writes to CSV
+                        Console.WriteLine("\nWriting to CSV.");
+                        StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps" + k.ToString() + @".csv");
+                        CsvWriter csvWriter = new CsvWriter(stream);
+
+                        timer.Restart();
+                        foreach (decimal d in results)
+                        {
+                            csvWriter.WriteRecord((double)d);
+                            csvWriter.NextRecord();
+
+                        }
+                        timer.Stop();
+
+                        Console.WriteLine("\nWrite time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
+
+                        stream.Dispose();
+                    }
+                }
+
+                // Single verbose simulation
+                else
+                {
+                    // Instantiates the HTML scraper for Ariyala
+                    AriyalaScraper scraper = new AriyalaScraper();
+
+                    // Asks for an Ariyala code
+                    do
+                    {
+                        Console.WriteLine("\nEnter the Ariyala link or code:");
 
                         try
                         {
                             string ariyalaCode = Console.ReadLine();
-                            listOfAttDicts.Add(scraper.GetAriyalaSet(ariyalaCode));
+                            singleAttDict = scraper.GetAriyalaSet(ariyalaCode);
                             validCode = true;
 
                         }
@@ -83,125 +273,95 @@ namespace BardSimV2
                         }
                     }
                     while (!validCode);
-                }
 
-                do
-                {
-                    Console.WriteLine("\nInput the number of simulations:");
+                    // Closes the browser
+                    scraper.Dispose();
 
-                    try
+                    // Asks for type of simulation
+                    do
                     {
-                        int.TryParse(Console.ReadLine(), out numberOfRuns);
-                        if (numberOfRuns <= 0)
-                        {
-                            throw new InvalidDataException("Number must be greater than zero.");
-                        }
-                        validRunsNumber = true;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        validRunsNumber = false;
-                    }
-                }
-                while (!validRunsNumber);
+                        Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
 
-                do
-                {
-                    Console.WriteLine("\nEnter 'D' for damage target, or 'T' for time target:");
+                        try
+                        {
+                            char targetChar = Console.ReadLine()[0];
 
-                    try
-                    {
-                        char targetChar = Console.ReadLine()[0];
-
-                        if (targetChar == 'D')
-                        {
-                            simulationParameter = SimulationParameters.DamageTarget;
+                            if (targetChar == 'D')
+                            {
+                                simulationParameter = SimulationParameters.DamageTarget;
+                            }
+                            else if (targetChar == 'T')
+                            {
+                                simulationParameter = SimulationParameters.TimeTarget;
+                            }
+                            else
+                            {
+                                throw new InvalidDataException("Invalid type of simulation.");
+                            }
                         }
-                        else if (targetChar == 'T')
+                        catch (Exception e)
                         {
-                            simulationParameter = SimulationParameters.TimeTarget;
-                        }
-                        else
-                        {
-                            throw new InvalidDataException("Invalid type of simulation.");
+                            Console.WriteLine(e.Message);
+                            simulationParameter = SimulationParameters.Invalid;
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        simulationParameter = SimulationParameters.Invalid;
-                    }
-                }
-                while (simulationParameter == SimulationParameters.Invalid);
+                    while (simulationParameter == SimulationParameters.Invalid);
 
-                do
-                {
-                    try
+                    // Asks for target of simulation (seconds or total damage)
+                    do
                     {
-                        if (simulationParameter == SimulationParameters.DamageTarget)
+                        try
                         {
-                            Console.WriteLine("\nInput the damage target:");
-                            decimal.TryParse(Console.ReadLine(), out simulationTarget);
-                        }
-                        else if (simulationParameter == SimulationParameters.TimeTarget)
-                        {
-                            Console.WriteLine("\nInput the time target:");
-                            decimal.TryParse(Console.ReadLine(), out simulationTarget);
-                        }
+                            if (simulationParameter == SimulationParameters.DamageTarget)
+                            {
+                                Console.WriteLine("\nInput the  total damage target:");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
+                            else if (simulationParameter == SimulationParameters.TimeTarget)
+                            {
+                                Console.WriteLine("\nInput the time target (in seconds):");
+                                decimal.TryParse(Console.ReadLine(), out simulationTarget);
+                            }
 
-                        if(simulationTarget <= 0)
-                        {
-                            throw new InvalidDataException("Value must be greater than zero.");
+                            if (simulationTarget <= 0)
+                            {
+                                throw new InvalidDataException("Value must be greater than zero.");
+                            }
+                            validSimulationTarget = true;
                         }
-                        validSimulationTarget = true;
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            validSimulationTarget = false;
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        validSimulationTarget = false;
-                    }
-                }
-                while (!validSimulationTarget);
+                    while (!validSimulationTarget);
 
-                // Main loop
-                for (int k = 0; k < numberOfSets; k++)
-                {
-                    List<decimal> results = new List<decimal>();
-                    Engine engine = new Engine(listOfAttDicts[k]);
+                    // Main loop
+
+                    decimal result = 0;
+                    Engine engine = new Engine(singleAttDict);
                     Stopwatch timer = new Stopwatch();
+
+
                     timer.Start();
 
-                    for (int i = 0; i < numberOfRuns; i++)
-                    {
-                        results.Add(engine.Simulate(simulationParameter, simulationTarget));
-                        engine.Reinitialize();
-                    }
+                    result = engine.Simulate(simulationParameter, simulationTarget, logData);
+                    engine.Reinitialize();
+
                     timer.Stop();
 
 
-                    Console.WriteLine("\nAverage DPS: {0:0.00}\nMax: {1:0.00}\nMin: {2:0.00}",results.Average(),results.Max(),results.Min());
+                    Console.WriteLine("\nDPS: {0:0.00}", result);
 
                     Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
 
-
-                    Console.WriteLine("\nWriting to CSV.");
-                    StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps"+ k.ToString() + @".csv");
-                    CsvWriter csvWriter = new CsvWriter(stream);
-                    timer.Restart();
-
-                    foreach (decimal d in results)
+                    List<string> logStrings = logData.GetLog();
+                    
+                    foreach(string s in logStrings)
                     {
-                        csvWriter.WriteRecord((double)d);
-                        csvWriter.NextRecord();
-
+                        Console.Write(s);
                     }
-                    timer.Stop();
-
-                    Console.WriteLine("\nWrite time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
-
-                    stream.Dispose();
-
 
                 }
             }

@@ -56,7 +56,7 @@ namespace BardSimV2
         static public int SidewinderPotency(Entity user, OverTimeStateComponent targOtStateComp, Component jobComp)
         {
             int dotCounter = 0;
-            foreach (DoT dot in targOtStateComp.DotList.FindAll(x => (x.Name == DotName.CausticBite && x.IsActive == true && x.UserSource == user) || (x.Name == DotName.StormBite && x.IsActive == true && x.UserSource == user)))
+            foreach (DoT dot in targOtStateComp.DotList.FindAll(x => (x.Name == DotName.CausticBite && x.IsActive == true && x.UserSource == user) || (x.Name == DotName.Stormbite && x.IsActive == true && x.UserSource == user)))
             {
                 dotCounter++;
             }
