@@ -74,6 +74,11 @@ namespace BardSimV2
 
         public void Update(decimal timer, Keyboard keyboard, LogData log)
         {
+            if (timer == 0)
+            {
+                gcdCounter = 0;
+            }
+
             if (timer == NextGCD(heavyShotCdComp))
             {
                 gcdCounter++;

@@ -314,6 +314,8 @@ namespace BardSimV2
 
                                                 // Inflicts damage on target's health component
                                                 targHealthComp.Amount -= totalDamage2;
+                                                targHealthComp.Amount -= totalDamage3;
+                                                targHealthComp.DamageTaken += totalDamage2;
                                                 targHealthComp.DamageTaken += totalDamage3;
 
                                                 // Removes the effect of barrage
@@ -325,7 +327,7 @@ namespace BardSimV2
                                             targHealthComp.DamageTaken += totalDamage1;
 
                                             // Adds the damage to the log, if it exists
-                                            if(log != null)
+                                            if (log != null)
                                             {
                                                 // If skill is a GCD
                                                 if (skillBaseComp.Name == SkillName.HeavyShot || skillBaseComp.Name == SkillName.StraightShot || skillBaseComp.Name == SkillName.CausticBite || skillBaseComp.Name == SkillName.Stormbite || skillBaseComp.Name == SkillName.IronJaws || skillBaseComp.Name == SkillName.RefulgentArrow || skillBaseComp.Name == SkillName.VenomousBite || skillBaseComp.Name == SkillName.Windbite)

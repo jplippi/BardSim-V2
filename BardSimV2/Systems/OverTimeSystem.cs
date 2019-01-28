@@ -89,6 +89,7 @@ namespace BardSimV2
                                         dhitMod,
                                         dot.UsersBuffList
                                     );
+                                healthComp.Amount -= dotTick;
                                 healthComp.DamageTaken += dotTick;
 
                                 // Adds the damage to the log, if it exists

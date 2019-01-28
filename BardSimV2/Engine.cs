@@ -538,6 +538,5 @@ namespace BardSimV2
                 c.Offset  = (new Random().Next(0, 300) * 10).MilliToSeconds();
             }
         }
-
     }
 }

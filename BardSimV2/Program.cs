@@ -230,7 +230,7 @@ namespace BardSimV2
 
                         // Writes to CSV
                         Console.WriteLine("\nWriting to CSV.");
-                        StreamWriter stream = new StreamWriter(@"C:\Users\jplip\Documents\dps" + k.ToString() + @".csv");
+                        StreamWriter stream = new StreamWriter(Environment.CurrentDirectory + k.ToString() + @".csv");
                         CsvWriter csvWriter = new CsvWriter(stream);
 
                         timer.Restart();
@@ -351,17 +351,16 @@ namespace BardSimV2
 
                     timer.Stop();
 
-
-                    Console.WriteLine("\nDPS: {0:0.00}", result);
-
-                    Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
-
                     List<string> logStrings = logData.GetLog();
                     
                     foreach(string s in logStrings)
                     {
                         Console.Write(s);
                     }
+
+                    Console.WriteLine("\nDPS: {0:0.00}", result);
+
+                    Console.WriteLine("\nSimulation time: {0}", timer.ElapsedMilliseconds.MilliToSeconds());
 
                 }
             }

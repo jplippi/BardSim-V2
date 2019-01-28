@@ -18,6 +18,7 @@ namespace BardSimV2
         private IWebDriver driver;
         private Regex ariyalaRegex;
         private Regex attributeRegex;
+        private String xpath;
         private WebDriverWait wait;
 
         public AriyalaScraper()
@@ -35,7 +36,9 @@ namespace BardSimV2
             };
 
             ariyalaRegex = new Regex("^(http:\\/\\/)?(ffxiv.ariyala.com\\/)?([a-zA-Z0-9]{5})$");
-            attributeRegex = new Regex("(.*)? ");
+            attributeRegex = new Regex("(\\d+)?");
+
+            xpath = "//td[@class=\"th attributeName total\" or @class=\"th attributeName total totalPos\"  or @class=\"th attributeName total totalNeg\"]";
 
         }
 
@@ -63,7 +66,7 @@ namespace BardSimV2
             }
 
             // Reads the attributes from the html elements
-            IReadOnlyCollection<IWebElement> elementList = driver.FindElements(By.XPath("//td[@class=\"th attributeName total totalPos\"]"));
+            IReadOnlyCollection<IWebElement> elementList = driver.FindElements(By.XPath(xpath));
             AttributesDictionary attributesFromAriyala = new AttributesDictionary();
 
             if(elementList.Count != JobSettings.brdAttributeTypes.Count)

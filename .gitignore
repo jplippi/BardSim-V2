@@ -1,5 +1,10 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
 /.vs/BardSimV2/v15
+BardSimV2/obj/Debug/BardSimV2.csprojAssemblyReference.cache
+BardSimV2/obj/
+BardSimV2/bin/Debug/BardSimV2.exe
+*.diagsession
+BardSimV2/bin/
