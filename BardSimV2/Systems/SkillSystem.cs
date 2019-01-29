@@ -22,6 +22,7 @@ namespace BardSimV2
         List<IronJawsEffectComponent> ironJawsEffectComponents;
         List<ModifierStateComponent> modifierStateComponents;
         List<OverTimeStateComponent> overtimeStateComponents;
+        List<PartyComponent> partyComponents;
         List<PotencyComponent> potencyComponents;
         List<SkillBaseComponent> skillBaseComponents;
         List<SkillControlComponent> skillControlComponents;
@@ -36,7 +37,7 @@ namespace BardSimV2
         Random rng;
 
 
-        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<ConditionalPotencyComponent> conditionalPotencyComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SkillControlComponent> skillControlComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents, List<UsesEnablerComponent> usesEnablerComponents, List<UsesRepertoireComponent> usesRepertoireComponents)
+        public SkillSystem(List<AnimationLockComponent> animationLockComponents, List<AttributesComponent> attributesComponents, List<BardComponent> bardComponents, List<ConditionalPotencyComponent> conditionalPotencyComponents, List<CooldownComponent> cooldownComponents, List<DotEffectComponent> dotEffectComponents, List<EnhancedEmpyrealArrowComponent> enhancedEmpyrealArrowComponents, List<GenericStatusEffectComponent> genericStatusEffectComponents, List <HealthComponent> healthComponents, List<IronJawsEffectComponent> ironJawsEffectComponents, List<ModifierStateComponent> modifierStateComponents, List<OverTimeStateComponent> overtimeStateComponents, List<PartyComponent> partyComponents, List<PotencyComponent> potencyComponents, List<SkillBaseComponent> skillBaseComponents, List<SkillControlComponent> skillControlComponents, List<SongComponent> songComponents, List<StatusEffectComponent> statusEffectComponents, List<StraighterShotEffectComponent> straighterShotEffectComponents, List<TargetComponent> targetComponents, List<UseConditionComponent> useConditionComponents, List<UsesEnablerComponent> usesEnablerComponents, List<UsesRepertoireComponent> usesRepertoireComponents)
         {
             this.animationLockComponents = animationLockComponents;
             this.attributesComponents = attributesComponents;
@@ -50,6 +51,7 @@ namespace BardSimV2
             this.ironJawsEffectComponents = ironJawsEffectComponents;
             this.modifierStateComponents = modifierStateComponents;
             this.overtimeStateComponents = overtimeStateComponents;
+            this.partyComponents = partyComponents;
             this.potencyComponents = potencyComponents;
             this.skillBaseComponents = skillBaseComponents;
             this.skillControlComponents = skillControlComponents;
@@ -111,6 +113,7 @@ namespace BardSimV2
                                     {
                                         // User Components
                                         AttributesComponent attComp = attributesComponents.Find(x => x.Parent == entity);
+                                        PartyComponent ptComp = partyComponents.Find(x => x.Parent == entity);
 
                                         // Skill list
                                         List<Entity> skillList = brdComp.SkillList;
@@ -522,23 +525,35 @@ namespace BardSimV2
                                         // Logic for buff effects
                                         foreach (StatusEffectComponent statusComp in statusEffectComponents.FindAll(x => x.Parent == skill))
                                         {
-                                            Buff b = modStateComp.BuffList.Find(x => x.UserSource == entity && x.Name == statusComp.Name);
-
-                                            // If there's already the same buff applied, refresh the timer
-                                            if (b != null)
+                                            List<ModifierStateComponent> modStateComps = new List<ModifierStateComponent>();
+                                            switch(statusComp.Actor)
                                             {
-                                                b.Start = timer;
+                                                case ActorType.Self:
+                                                    modStateComps.Add(modStateComp);
+                                                    break;
+                                                case ActorType.Target:
+                                                    //
+                                                    break;
+                                                case ActorType.Allies:
+                                                    modStateComps = modifierStateComponents.FindAll(x => ptComp.Members.Contains(x.Parent));
+                                                    break;
                                             }
-                                            // Otherwise, adds the buff
-                                            else
+
+                                            List<Buff> buffList = new List<Buff>();
+
+                                            foreach (ModifierStateComponent msComp in modStateComps)
                                             {
-                                                if (statusComp.Actor == ActorType.Self)
+                                                Buff b = msComp.BuffList.Find(x => x.UserSource == entity && x.Name == statusComp.Name);
+
+                                                // If there's already the same buff applied, refresh the timer
+                                                if (b != null)
                                                 {
-                                                    modStateComp.BuffList.Add(new Buff(entity, entity, statusComp.Name, statusComp.Type, statusComp.Duration, timer, statusComp.Modifier, false));
+                                                    b.Start = timer;
                                                 }
-                                                else if (statusComp.Actor == ActorType.Target)
+                                                // Otherwise, adds the buff
+                                                else
                                                 {
-                                                    modStateComp.BuffList.Add(new Buff(targComp.Target, entity, statusComp.Name, statusComp.Type, statusComp.Duration, timer, statusComp.Modifier, false));
+                                                    msComp.BuffList.Add(new Buff(msComp.Parent, entity, statusComp.Name, statusComp.Type, statusComp.Duration, timer, statusComp.Modifier, false));
                                                 }
                                             }
                                         }

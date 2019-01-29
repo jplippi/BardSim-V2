@@ -34,6 +34,9 @@ namespace BardSimV2
         CausticBite,
         Stormbite,
         NaturesMinne,
-        RefulgentArrow
+        RefulgentArrow,
+
+        // Dragoon
+        BattleLitany,
     }
 }

@@ -9,6 +9,7 @@ namespace BardSimV2
     enum ActorType
     {
         Self,
-        Target
+        Target,
+        Allies
     }
 }

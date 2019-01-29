@@ -150,6 +150,8 @@
     <Compile Include="Auxiliars\AttributesDictionary.cs" />
     <Compile Include="Auxiliars\JobSettings.cs" />
     <Compile Include="Auxiliars\LogData.cs" />
+    <Compile Include="Components\PartyComponent.cs" />
+    <Compile Include="Components\DragoonComponent.cs" />
     <Compile Include="Components\ConditionalPotencyComponent.cs" />
     <Compile Include="Components\UsesEnablerComponent.cs" />
     <Compile Include="Components\UsesRepertoireComponent.cs" />

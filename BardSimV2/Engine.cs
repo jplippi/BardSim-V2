@@ -18,6 +18,7 @@ namespace BardSimV2
 
         // Initializing player entities
         Entity player = new Entity();
+        Entity drg = new Entity();
 
         // Initializing enemy entities
         Entity enemy = new Entity();
@@ -38,6 +39,8 @@ namespace BardSimV2
         Entity theWanderersMinuet;
         Entity magesBallad;
         Entity armysPaeon;
+
+        Entity battleLitany;
 
         // Shared cooldown lists
         List<Entity> gcdSkillList;
@@ -240,6 +243,16 @@ namespace BardSimV2
                 new SongComponent(armysPaeon, SongName.ArmysPaeon)
             });
 
+            battleLitany.AddComponents(new List<Component>
+            {
+                new SkillBaseComponent(battleLitany, SkillName.BattleLitany, SkillType.Ability),
+                new CooldownComponent(battleLitany, 180m),
+                new StatusEffectComponent(battleLitany, AttributeType.CriticalHitRate, StatusName.BattleLitany, ActorType.Allies, 20m, 15)
+            });
+
+            // Party component
+            PartyComponent partyComponent = new PartyComponent(player, drg);
+
             // Initializing player components
             player.AddComponents(new List<Component>
             {
@@ -268,7 +281,20 @@ namespace BardSimV2
                 new RiverOfBloodComponent(player, riverOfBloodSkillList),
                 new SkillControlComponent(player, Job.Bard),
                 // DEBUG: Setting enemy as player's target
-                new TargetComponent(player, enemy)
+                new TargetComponent(player, enemy),
+                partyComponent
+            });
+
+            // Initializing DRG components
+            drg.AddComponents(new List<Component>
+            {
+                new DragoonComponent(drg, new List<Entity>
+                {
+                    battleLitany
+                }),
+                new AnimationLockComponent(drg),
+                new SkillControlComponent(drg, Job.Dragoon),
+                partyComponent
             });
 
             // Initializing enemy components
@@ -296,6 +322,9 @@ namespace BardSimV2
             _entities.Add(theWanderersMinuet);
             _entities.Add(magesBallad);
             _entities.Add(armysPaeon);
+
+            _entities.Add(drg);
+            _entities.Add(battleLitany);
 
             foreach (Entity e in _entities)
             {

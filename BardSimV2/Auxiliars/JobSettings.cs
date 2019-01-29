@@ -46,5 +46,10 @@ namespace BardSimV2
             SkillName.VenomousBite,
             SkillName.Windbite
         };
+
+        public readonly static List<SkillName> drgSkillNames = new List<SkillName>
+        {
+            SkillName.BattleLitany,
+        };
     }
 }
