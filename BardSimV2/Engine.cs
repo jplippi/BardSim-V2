@@ -60,6 +60,7 @@ namespace BardSimV2
         List<IronJawsEffectComponent> ironJawsEffectComponents = new List<IronJawsEffectComponent>();
         List<ModifierStateComponent> modifierStateComponents = new List<ModifierStateComponent>();
         List<OverTimeStateComponent> overtimeStateComponents = new List<OverTimeStateComponent>();
+        List<PartyComponent> partyComponents = new List<PartyComponent>();
         List<PotencyComponent> potencyComponents = new List<PotencyComponent>();
         List<RiverOfBloodComponent> riverOfBloodComponents = new List<RiverOfBloodComponent>();
         List<SkillBaseComponent> skillBaseComponents = new List<SkillBaseComponent>();
@@ -243,13 +244,13 @@ namespace BardSimV2
                 new SongComponent(armysPaeon, SongName.ArmysPaeon)
             });
 
-            battleLitany.AddComponents(new List<Component>
+            /*battleLitany.AddComponents(new List<Component>
             {
                 new SkillBaseComponent(battleLitany, SkillName.BattleLitany, SkillType.Ability),
                 new CooldownComponent(battleLitany, 180m),
                 new StatusEffectComponent(battleLitany, AttributeType.CriticalHitRate, StatusName.BattleLitany, ActorType.Allies, 20m, 15)
             });
-
+            */
             // Party component
             PartyComponent partyComponent = new PartyComponent(player, drg);
 
@@ -323,8 +324,8 @@ namespace BardSimV2
             _entities.Add(magesBallad);
             _entities.Add(armysPaeon);
 
-            _entities.Add(drg);
-            _entities.Add(battleLitany);
+            /*_entities.Add(drg);
+            _entities.Add(battleLitany);*/
 
             foreach (Entity e in _entities)
             {
@@ -382,6 +383,10 @@ namespace BardSimV2
                     {
                         overtimeStateComponents.Add((OverTimeStateComponent)c);
                     }
+                    else if (c is PartyComponent)
+                    {
+                        partyComponents.Add((PartyComponent)c);
+                    }
                     else if (c is PotencyComponent)
                     {
                         potencyComponents.Add((PotencyComponent)c);
@@ -436,7 +441,7 @@ namespace BardSimV2
             _systems.Add(new RepertoireSystem(bardComponents, cooldownComponents, modifierStateComponents, riverOfBloodComponents));
             _systems.Add(new BuffSystem(bardComponents, modifierStateComponents));
             _systems.Add(new AutoAttackSystem(attributesComponents, autoAttackComponents, bardComponents, healthComponents, modifierStateComponents, targetComponents));
-            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, modifierStateComponents, overtimeStateComponents, potencyComponents, skillBaseComponents, skillControlComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
+            _systems.Add(new SkillSystem(animationLockComponents, attributesComponents, bardComponents, conditionalPotencyComponents, cooldownComponents, dotEffectComponents, enhancedEmpyrealArrowComponents, genericStatusEffectComponents, healthComponents, ironJawsEffectComponents, modifierStateComponents, overtimeStateComponents, partyComponents, potencyComponents, skillBaseComponents, skillControlComponents, songComponents, statusEffectComponents, straighterShotEffectComponents, targetComponents, useConditionComponents, usesEnablerComponents, usesRepertoireComponents));
         }
 
         public decimal Simulate (SimulationParameters target, decimal input)

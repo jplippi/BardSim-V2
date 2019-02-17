@@ -87,10 +87,33 @@ namespace BardSimV2
                 attributesFromAriyala[JobSettings.brdAttributeTypes[i]] = attribute;
             }
 
-
+            bool validAttackPower = true;
             bool validWeapDamage = true;
             bool validWeapDelay = true;
             // Asks for weapon damage and weapon delay
+            // And for main stat too cause it's retarded
+
+            do
+            {
+                try
+                {
+                    Console.WriteLine("\nPlease manually input the Attack Power:");
+                    int.TryParse(Console.ReadLine(), out int attackPower);
+                    if (attackPower <= 0)
+                    {
+                        throw new InvalidDataException("\nNumber must be greater than zero.");
+                    }
+                    attributesFromAriyala[JobSettings.brdAttributeTypes[0]] = attackPower;
+                    validAttackPower = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    validAttackPower = false;
+                }
+            }
+            while (!validAttackPower);
+
             do
             {
                 try
